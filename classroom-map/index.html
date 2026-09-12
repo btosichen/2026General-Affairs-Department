@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="臺北市立陽明高中年度教室配置、工程位置與座位規劃互動圖" />
+  <title>陽明高中教室互動圖</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b3558'/%3E%3Cpath d='M10 27 32 15l22 12-22 12z' fill='%23f6c453'/%3E%3Cpath d='M18 34v11c8 6 20 6 28 0V34l-14 8z' fill='%23fff'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark cute-school" aria-hidden="true">🏫</span><div><strong>教室配置工作台</strong><small>臺北市立陽明高中</small></div></div>
+    <div class="top-actions">
+      <label class="year-field">學年度<select id="yearSelect"></select></label>
+      <button id="newYearBtn" class="button secondary">建立新年度</button>
+      <button id="printBtn" class="button primary">列印配置</button>
+      <button id="moreBtn" class="icon-button" aria-label="資料選單">⋯</button>
+      <div id="moreMenu" class="menu" hidden>
+        <button id="exportBtn">匯出備份檔</button>
+        <label class="menu-upload">匯入備份檔<input id="importInput" type="file" accept="application/json" /></label>
+        <button id="resetBtn" class="danger-text">還原示範資料</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="檢視工具">
+      <div class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="搜尋班級、教室、工程或備註…" /></div>
+      <div class="segmented" role="tablist">
+        <button class="active" data-view="campus">校園配置</button>
+        <button data-view="rooms">教室清單</button>
+        <button data-view="seats">座位規劃</button>
+      </div>
+      <label class="toggle"><input id="editToggle" type="checkbox" checked /><span></span>編輯模式</label>
+    </section>
+
+    <section id="campusView" class="view active">
+      <div class="summary-row" id="summaryRow"></div>
+      <div class="workspace">
+        <aside class="legend-panel">
+          <h2>工程標記</h2>
+          <button class="legend active" data-status="all"><i class="dot all"></i>全部空間 <b id="countAll">0</b></button>
+          <button class="legend" data-status="normal"><i class="dot normal"></i>一般使用 <b id="countNormal">0</b></button>
+          <button class="legend" data-status="planned"><i class="dot planned"></i>規劃中 <b id="countPlanned">0</b></button>
+          <button class="legend" data-status="working"><i class="dot working"></i>施工中 <b id="countWorking">0</b></button>
+          <button class="legend" data-status="done"><i class="dot done"></i>已完成 <b id="countDone">0</b></button>
+          <div class="source-note"><strong>配置依據</strong><span>115.08.05 教室平面圖</span><small>每棟由高樓層往下排列；同一列即為該樓層由左至右的位置。</small></div>
+        </aside>
+        <div class="map-shell">
+          <div class="map-head"><div><span class="north">↑ 北</span><strong>全校樓層教室配置</strong></div><span>← 左側位置　｜　右側位置 →</span></div>
+          <div id="campusMap" class="campus-map" aria-label="校園建築配置"></div>
+          <div class="map-footer"><span>← 田徑運動場</span><span>◎ 校門　　⊙ 出入口　　→ 士東路</span></div>
+        </div>
+        <aside id="buildingPanel" class="detail-panel floor-guide"><h2>閱讀方式</h2><p>每棟校舍以平面圖的方式呈現：</p><ol><li>最高樓層在最上方</li><li>每列房間依原圖由左至右排列</li><li>點選房間即可編輯人數、桌椅及工程狀態</li></ol><div class="guide-sample"><b>4F</b><span>201班</span><span>202班</span><span>203班</span></div></aside>
+      </div>
+    </section>
+
+    <section id="roomsView" class="view">
+      <div class="list-card">
+        <div class="list-head"><div><h2>全部教室與空間</h2><p id="roomListCaption"></p></div><button id="addRoomBtn" class="button primary">新增空間</button></div>
+        <div class="table-wrap"><table><thead><tr><th>校舍／樓層</th><th>空間名稱</th><th>班級</th><th>人數</th><th>工程狀態</th><th>備註</th></tr></thead><tbody id="roomsTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="seatsView" class="view">
+      <div class="seat-layout">
+        <aside class="seat-side"><h2>班級座位規劃</h2><p>選擇班級後，可設定高二分組人數與桌椅排列。</p><label>班級<select id="seatRoomSelect"></select></label><label>每排座位<input id="seatColumns" type="number" min="2" max="10" value="6" /></label><div id="seatInputs"></div><button id="saveSeatBtn" class="button primary wide">儲存座位配置</button><div class="seat-legend"><span><i class="g1"></i>第1類</span><span><i class="g2"></i>第2類</span><span><i class="g3"></i>第3類</span><span><i class="other"></i>一般</span></div></aside>
+        <div class="seat-card"><div class="seat-title"><div><span id="seatLocation"></span><h2 id="seatTitle">選擇班級</h2></div><div id="seatTotal" class="capacity"></div></div><div class="blackboard">黑板／講台</div><div id="seatGrid" class="seat-grid"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="roomDialog">
+    <form id="roomForm" method="dialog">
+      <div class="dialog-head"><div><small>空間資料</small><h2 id="dialogTitle">編輯教室</h2></div><button type="button" class="close" id="closeDialog" aria-label="關閉">×</button></div>
+      <input type="hidden" id="roomId" />
+      <div class="form-grid"><label>校舍<select id="roomBuilding" required></select></label><label>樓層<select id="roomFloor" required><option>1F</option><option>2F</option><option>3F</option><option>4F</option><option>5F</option><option>B1</option></select></label><label class="span-2">空間名稱<input id="roomName" required /></label><label>班級／用途<input id="roomClass" placeholder="例如：201班" /></label><label>學生人數<input id="roomStudents" type="number" min="0" max="80" /></label><label>工程狀態<select id="roomStatus"><option value="normal">一般使用</option><option value="planned">規劃中</option><option value="working">施工中</option><option value="done">已完成</option></select></label><label>桌椅數量<input id="roomDesks" type="number" min="0" max="100" /></label><label class="span-2">備註<textarea id="roomNote" rows="3" placeholder="工程內容、聯絡事項或空間限制"></textarea></label></div>
+      <div class="dialog-actions"><button type="button" id="deleteRoomBtn" class="button danger">刪除</button><span></span><button type="button" id="cancelDialog" class="button secondary">取消</button><button type="submit" class="button primary">儲存變更</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="yearDialog">
+    <form id="yearForm" method="dialog"><div class="dialog-head"><div><small>年度版本</small><h2>建立新學年度</h2></div><button type="button" class="close" data-close-year>×</button></div><label>學年度<input id="newYearName" required placeholder="例如：116" /></label><label class="check-row"><input id="copyYear" type="checkbox" checked />複製目前年度的配置再調整</label><div class="dialog-actions"><span></span><span></span><button type="button" class="button secondary" data-close-year>取消</button><button type="submit" class="button primary">建立年度</button></div></form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
