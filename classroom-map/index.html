@@ -37,6 +37,11 @@
 
     <section id="campusView" class="view active">
       <div class="summary-row" id="summaryRow"></div>
+      <section class="construction-schedule" aria-labelledby="scheduleTitle">
+        <div class="schedule-heading"><div><small>115 年普通教室整修工程</small><h2 id="scheduleTitle">前後置物櫃施工順序</h2></div><span>施工原則：由高樓層往下，同樓層依配置順序</span></div>
+        <div id="scheduleBoard" class="schedule-board"></div>
+        <div class="schedule-notes"><p>🪟 <strong>窗簾安裝：</strong>置物櫃施工會產生大量灰塵，待各教室置物櫃完工並完成清潔後再安排安裝。</p><p>🧑‍🏫 <strong>講桌送樣：</strong>第一座完成後先送校確認樣式；確認無需修改即全面製作，送樣講桌優先供 306 教室使用。</p></div>
+      </section>
       <div class="workspace">
         <aside class="legend-panel">
           <h2>工程標記</h2>
@@ -75,7 +80,7 @@
     <form id="roomForm" method="dialog">
       <div class="dialog-head"><div><small>空間資料</small><h2 id="dialogTitle">編輯教室</h2></div><button type="button" class="close" id="closeDialog" aria-label="關閉">×</button></div>
       <input type="hidden" id="roomId" />
-      <div class="form-grid"><label>校舍<select id="roomBuilding" required></select></label><label>樓層<select id="roomFloor" required><option>1F</option><option>2F</option><option>3F</option><option>4F</option><option>5F</option><option>B1</option></select></label><label class="span-2">空間名稱<input id="roomName" required /></label><label>班級／用途<input id="roomClass" placeholder="例如：201班" /></label><label>學生人數<input id="roomStudents" type="number" min="0" max="80" /></label><label>工程狀態<select id="roomStatus"><option value="normal">一般使用</option><option value="planned">規劃中</option><option value="working">施工中</option><option value="done">已完成</option></select></label><label>桌椅數量<input id="roomDesks" type="number" min="0" max="100" /></label><label class="span-2">備註<textarea id="roomNote" rows="3" placeholder="工程內容、聯絡事項或空間限制"></textarea></label></div>
+      <div class="form-grid"><label>校舍<select id="roomBuilding" required></select></label><label>樓層<select id="roomFloor" required><option>1F</option><option>2F</option><option>3F</option><option>4F</option><option>5F</option><option>B1</option></select></label><label class="span-2">空間名稱<input id="roomName" required /></label><label>班級／用途<input id="roomClass" placeholder="例如：201班" /></label><label>學生人數<input id="roomStudents" type="number" min="0" max="80" /></label><label>工程狀態<select id="roomStatus"><option value="normal">一般使用</option><option value="planned">規劃中</option><option value="working">施工中</option><option value="done">已完成</option></select></label><label>桌椅數量<input id="roomDesks" type="number" min="0" max="100" /></label><label>櫃子施工批次<input id="roomConstructionDate" placeholder="例如：09/19-20" /></label><label>批次內順序<input id="roomConstructionOrder" type="number" min="1" max="30" /></label><label class="span-2">備註<textarea id="roomNote" rows="3" placeholder="工程內容、聯絡事項或空間限制"></textarea></label></div>
       <div class="dialog-actions"><button type="button" id="deleteRoomBtn" class="button danger">刪除</button><span></span><button type="button" id="cancelDialog" class="button secondary">取消</button><button type="submit" class="button primary">儲存變更</button></div>
     </form>
   </dialog>
