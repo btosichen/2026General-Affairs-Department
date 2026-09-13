@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臺北市立陽明高級中學 - 雨汙水管線地理資訊查詢與管理系統</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        sewage: {
+                            DEFAULT: '#881337',
+                            light: '#e11d48',
+                            dark: '#4c0519',
+                            bg: '#fff1f2'
+                        },
+                        rain: {
+                            DEFAULT: '#0284c7',
+                            light: '#38bdf8',
+                            dark: '#075985',
+                            bg: '#f0f9ff'
+                        },
+                        yangming: {
+                            gold: '#d97706',
+                            green: '#15803d',
+                            bg: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            user-select: none;
+        }
+
+        /* Pipe Flow Animation */
+        @keyframes dash-sewage {
+            to {
+                stroke-dashoffset: -32;
+            }
+        }
+        @keyframes dash-rain {
+            to {
+                stroke-dashoffset: -32;
+            }
+        }
+
+        .flow-animated-sewage {
+            stroke-dasharray: 8, 6;
+            animation: dash-sewage 1.2s linear infinite;
+        }
+
+        .flow-animated-rain {
+            stroke-dasharray: 8, 6;
+            animation: dash-rain 1.0s linear infinite;
+        }
+
+        /* Pulse Nodes */
+        @keyframes pulse-node {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.6); opacity: 0.8; }
+        }
+
+        .node-selected {
+            animation: pulse-node 1.2s infinite ease-in-out;
+            transform-origin: center;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Map Canvas Dragging Cursor */
+        .map-container {
+            cursor: grab;
+        }
+        .map-container:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="bg-slate-900 text-white shadow-md z-30 px-4 py-2.5 flex flex-wrap items-center justify-between border-b border-slate-700">
+        <div class="flex items-center space-x-3">
+            <div class="bg-amber-600 text-white p-2 rounded-lg flex items-center justify-center font-bold text-lg shadow">
+                <i class="fa-solid fa-school text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-base md:text-lg text-slate-100 leading-tight">
+                    臺北市立陽明高級中學 <span class="text-amber-400 font-normal text-xs md:text-sm">| 總務處雨汙水管線地理資訊查詢系統</span>
+                </h1>
+                <p class="text-xs text-slate-400">完整重現北市公共設施管線圖 (陽明高中校區與周邊基河路/承德路/中正路涵網)</p>
+            </div>
+        </div>
+
+        <!-- Quick Status & Legend Indicators -->
+        <div class="flex items-center space-x-3 mt-2 sm:mt-0 text-xs">
+            <div class="flex items-center space-x-1.5 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-md">
+                <span class="w-3 h-3 rounded-full bg-rose-900 inline-block border border-white"></span>
+                <span class="text-slate-200 font-medium">汙水管線 (深紅)</span>
+            </div>
+            <div class="flex items-center space-x-1.5 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-md">
+                <span class="w-3 h-3 rounded-full bg-sky-500 inline-block border border-white"></span>
+                <span class="text-slate-200 font-medium">雨水管線 (淺藍)</span>
+            </div>
+            <button onclick="openInfoModal('waterSystem')" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-md transition flex items-center space-x-1 shadow">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>陽明高中雨汙進出說明</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+
+        <!-- Left Sidebar / Control Panel -->
+        <aside id="sidebar" class="w-full md:w-96 bg-white border-r border-slate-200 flex flex-col z-20 shadow-lg transition-all duration-300">
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600">
+                <button onclick="switchTab('layers')" id="tab-layers" class="tab-btn flex-1 py-3 px-2 text-center border-b-2 border-amber-600 text-amber-700 bg-white flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-layer-group text-sm"></i>
+                    <span>圖層設定</span>
+                </button>
+                <button onclick="switchTab('search')" id="tab-search" class="tab-btn flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                    <span>管線查詢</span>
+                </button>
+                <button onclick="switchTab('info')" id="tab-info" class="tab-btn flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-book-open text-sm"></i>
+                    <span>水質與用途</span>
+                </button>
+                <button onclick="switchTab('maintenance')" id="tab-maintenance" class="tab-btn flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-wrench text-sm"></i>
+                    <span>報修與日誌</span>
+                </button>
+            </div>
+
+            <!-- Tab Panels Content -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+
+                <!-- TAB 1: LAYERS CONTROL -->
+                <div id="panel-layers" class="space-y-4">
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-amber-900">
+                        <div class="font-bold flex items-center gap-1.5 mb-1 text-sm">
+                            <i class="fa-solid fa-circle-info text-amber-600"></i>
+                            總務處圖資說明
+                        </div>
+                        <p class="leading-relaxed">
+                            本系統已精確繪製圖中<b>陽明高中校區內部管網</b>、<b>基河路</b>、<b>承德路五段</b>、<b>中正路</b>及<b>士林區行政中心周邊</b>之管線節點。深紅線為汙水管，淺藍線為雨水管。
+                        </p>
+                    </div>
+
+                    <!-- Layer Toggles -->
+                    <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-3 shadow-sm">
+                        <h3 class="font-bold text-slate-700 border-b pb-1 flex items-center justify-between text-sm">
+                            <span><i class="fa-solid fa-toggle-on text-amber-600 mr-1"></i> 管線與地圖圖層切換</span>
+                            <button onclick="resetLayers()" class="text-xs text-amber-600 hover:underline">重置預設</button>
+                        </h3>
+
+                        <!-- Sewage Toggle -->
+                        <div class="flex items-center justify-between p-2 rounded bg-rose-50/60 border border-rose-100">
+                            <label class="flex items-center space-x-2.5 cursor-pointer">
+                                <input type="checkbox" id="layer-sewage" checked onchange="toggleLayer('sewage')" class="rounded text-rose-700 focus:ring-rose-500 w-4 h-4">
+                                <span class="font-medium text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-rose-900 border border-white shadow-sm inline-block"></span>
+                                    汙水管線 (深紅)
+                                </span>
+                            </label>
+                            <span class="text-xs px-2 py-0.5 bg-rose-100 text-rose-800 font-semibold rounded-full">密閉廢水</span>
+                        </div>
+
+                        <!-- Rainwater Toggle -->
+                        <div class="flex items-center justify-between p-2 rounded bg-sky-50/60 border border-sky-100">
+                            <label class="flex items-center space-x-2.5 cursor-pointer">
+                                <input type="checkbox" id="layer-rain" checked onchange="toggleLayer('rain')" class="rounded text-sky-600 focus:ring-sky-400 w-4 h-4">
+                                <span class="font-medium text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-sky-400 border border-white shadow-sm inline-block"></span>
+                                    雨水管線 (淺藍)
+                                </span>
+                            </label>
+                            <span class="text-xs px-2 py-0.5 bg-sky-100 text-sky-800 font-semibold rounded-full">重力宣洩</span>
+                        </div>
+
+                        <!-- Nodes Toggle -->
+                        <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+                            <label class="flex items-center space-x-2.5 cursor-pointer">
+                                <input type="checkbox" id="layer-nodes" checked onchange="toggleLayer('nodes')" class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4">
+                                <span class="font-medium text-slate-700">顯示人孔與陰井節點</span>
+                            </label>
+                            <span class="text-slate-500 font-mono">50+ 節點</span>
+                        </div>
+
+                        <!-- Buildings Toggle -->
+                        <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+                            <label class="flex items-center space-x-2.5 cursor-pointer">
+                                <input type="checkbox" id="layer-buildings" checked onchange="toggleLayer('buildings')" class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4">
+                                <span class="font-medium text-slate-700">顯示陽明校舍與周邊建築</span>
+                            </label>
+                            <span class="text-slate-500">陽明高中區</span>
+                        </div>
+
+                        <!-- Residential Grid Toggle -->
+                        <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+                            <label class="flex items-center space-x-2.5 cursor-pointer">
+                                <input type="checkbox" id="layer-grid" checked onchange="toggleLayer('grid')" class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4">
+                                <span class="font-medium text-slate-700">東側住宅區與行政中心圖資</span>
+                            </label>
+                            <span class="text-slate-500">周邊社區</span>
+                        </div>
+
+                        <!-- Flow Animation Toggle -->
+                        <div class="flex items-center justify-between p-2 rounded bg-amber-50 border border-amber-200">
+                            <label class="flex items-center space-x-2.5 cursor-pointer">
+                                <input type="checkbox" id="layer-flow" checked onchange="toggleFlowAnimation()" class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4">
+                                <span class="font-medium text-amber-900 flex items-center gap-1">
+                                    <i class="fa-solid fa-water text-amber-600"></i> 水流方向動態模擬
+                                </span>
+                            </label>
+                            <span id="flow-status" class="text-xs text-emerald-600 font-semibold">流向播放中</span>
+                        </div>
+                    </div>
+
+                    <!-- Campus Quick Focus Buttons -->
+                    <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2 shadow-sm">
+                        <h3 class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-crosshairs text-amber-600 mr-1"></i> 校區與周邊快速視角切換</h3>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="focusArea('yangming')" class="p-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded text-left transition flex items-center gap-1.5 font-bold">
+                                <i class="fa-solid fa-school text-amber-600"></i>
+                                <span>陽明高中全校區</span>
+                            </button>
+                            <button onclick="focusArea('kitchen')" class="p-2 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border rounded text-left transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-utensils text-rose-600"></i>
+                                <span>餐廳廚房截油槽</span>
+                            </button>
+                            <button onclick="focusArea('science')" class="p-2 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border rounded text-left transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-flask text-purple-600"></i>
+                                <span>科學館酸鹼中和槽</span>
+                            </button>
+                            <button onclick="focusArea('track')" class="p-2 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border rounded text-left transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-person-running text-sky-600"></i>
+                                <span>200m 操場雨水排水溝</span>
+                            </button>
+                            <button onclick="focusArea('admin_center')" class="p-2 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border rounded text-left transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-building text-slate-600"></i>
+                                <span>士林行政中心周邊</span>
+                            </button>
+                            <button onclick="focusArea('full')" class="p-2 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border rounded text-left transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-globe text-slate-600"></i>
+                                <span>全圖總覽 (含基隆河)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: SEARCH & QUERY -->
+                <div id="panel-search" class="space-y-4 hidden">
+                    <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-3 shadow-sm">
+                        <h3 class="font-bold text-slate-700 text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-magnifying-glass text-amber-600"></i> 搜尋陽明高中與周邊管線節點
+                        </h3>
+                        <div class="relative">
+                            <input type="text" id="search-input" onkeyup="filterNodes()" placeholder="輸入：例如「截油槽」、「SW-05」、「科學館」、「基河路」..." class="w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-xs">
+                            <i class="fa-solid fa-search absolute left-2.5 top-3 text-slate-400"></i>
+                        </div>
+
+                        <!-- Filter Type Pills -->
+                        <div class="flex gap-1.5 text-xs">
+                            <button onclick="filterType('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-full bg-amber-600 text-white font-medium">全部</button>
+                            <button onclick="filterType('sewage')" id="filter-btn-sewage" class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">汙水管</button>
+                            <button onclick="filterType('rain')" id="filter-btn-rain" class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">雨水管</button>
+                        </div>
+                    </div>
+
+                    <!-- Search Result List -->
+                    <div class="bg-white rounded-lg border border-slate-200 p-2 shadow-sm">
+                        <div class="text-slate-500 font-semibold px-2 py-1 text-xs border-b mb-1 flex justify-between">
+                            <span>搜尋結果清單</span>
+                            <span id="result-count" class="text-amber-600 font-mono">0 筆</span>
+                        </div>
+                        <div id="node-list" class="space-y-1 max-h-80 overflow-y-auto">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: WATER SYSTEM INFO -->
+                <div id="panel-info" class="space-y-4 hidden">
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-amber-900">
+                        <h3 class="font-bold text-sm text-amber-800 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-droplet text-amber-600"></i> 陽明高中水系進出與原理說明
+                        </h3>
+                        <p class="leading-relaxed">
+                            陽明高中位於基河路、承德路與中正路之間，校園貫徹「雨汙分流」體系。雨水（淺藍）獨立排除入基隆河；汙水（深紅）送往迪化污水處理廠。
+                        </p>
+                    </div>
+
+                    <!-- Sewage Detailed Card -->
+                    <div class="bg-white rounded-lg border-l-4 border-l-rose-800 border border-slate-200 p-3 space-y-2 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-rose-900 text-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-toilet text-rose-800"></i> 1. 汙水管線系統 (深紅色)
+                            </h4>
+                            <span class="text-xs bg-rose-100 text-rose-900 px-2 py-0.5 rounded font-medium">密閉地下管網</span>
+                        </div>
+                        <p class="text-slate-600">
+                            <b>主要用途：</b>收集陽明高中洗手間、學生餐廳/廚房、理化實驗室及體育館浴室之廢污水。
+                        </p>
+                        <div class="bg-slate-50 p-2 rounded border space-y-1 text-xs">
+                            <div class="font-semibold text-slate-800"><i class="fa-solid fa-right-to-bracket text-rose-700"></i> 水的進出流程：</div>
+                            <ul class="list-disc list-inside text-slate-600 space-y-1 pl-1">
+                                <li><b>流入 (In)：</b>來自自來水系統，供教學大樓洗手台、廁所、廚房與化學/生物實驗室使用。</li>
+                                <li><b>校內預處理：</b>餐廳污水經<b>[SW-04] 油脂截留器</b>；實驗室廢水經<b>[SW-01] 酸鹼中和槽</b>。</li>
+                                <li><b>流出 (Out)：</b>匯集至校區深紅主幹管，經由<b>[SW-OUT1] 基河路</b>與<b>[SW-OUT2] 中正路</b>出口排入台北市地下污水幹管 ➔ 運送至<b>迪化污水處理廠</b>淨化。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Rainwater Detailed Card -->
+                    <div class="bg-white rounded-lg border-l-4 border-l-sky-500 border border-slate-200 p-3 space-y-2 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sky-900 text-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-cloud-showers-heavy text-sky-600"></i> 2. 雨水管線系統 (淺藍色)
+                            </h4>
+                            <span class="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded font-medium">重力排水溝渠</span>
+                        </div>
+                        <p class="text-slate-600">
+                            <b>主要用途：</b>快速宣洩豪雨時校舍屋頂、200m 操場及中庭花園地表積水，維護校園防颱安全。
+                        </p>
+                        <div class="bg-slate-50 p-2 rounded border space-y-1 text-xs">
+                            <div class="font-semibold text-slate-800"><i class="fa-solid fa-right-to-bracket text-sky-600"></i> 水的進出流程：</div>
+                            <ul class="list-disc list-inside text-slate-600 space-y-1 pl-1">
+                                <li><b>流入 (In)：</b>大氣降雨降落於校舍屋頂落水管、操場排水溝及道路雨水集水井。</li>
+                                <li><b>流出 (Out)：</b>經校內淺藍管線與陰井 ➔ 匯入承德路五段與基河路市府雨水箱涵 ➔ 由<b>基隆河抽水站</b>抽排入基隆河。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: MAINTENANCE LOGS -->
+                <div id="panel-maintenance" class="space-y-4 hidden">
+                    <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-3 shadow-sm">
+                        <h3 class="font-bold text-slate-700 text-sm flex items-center justify-between">
+                            <span><i class="fa-solid fa-clipboard-list text-amber-600"></i> 總務處管線維護登記簿</span>
+                            <button onclick="openReportModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-2.5 py-1 rounded text-xs shadow">
+                                <i class="fa-solid fa-plus"></i> 新增報修
+                            </button>
+                        </h3>
+
+                        <div id="maintenance-logs" class="space-y-2">
+                            <!-- Log Item 1 -->
+                            <div class="border rounded-lg p-2.5 bg-slate-50 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800">[SW-04] 餐廳油脂截留器定檢</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.2 rounded font-medium">清理完成</span>
+                                </div>
+                                <p class="text-slate-600">已完成學生餐厅廚房截油槽浮油清理與浮渣抽吸，水流速恢復正常。</p>
+                                <div class="text-slate-400 text-xs flex justify-between pt-1 border-t">
+                                    <span>登記人：總務處 庶務組</span>
+                                    <span>2026-08-20</span>
+                                </div>
+                            </div>
+
+                            <!-- Log Item 2 -->
+                            <div class="border rounded-lg p-2.5 bg-amber-50/60 border-amber-200 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800">[RW-05] 操場東側陰井防颱清淤</span>
+                                    <span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.2 rounded font-medium">進行中</span>
+                                </div>
+                                <p class="text-slate-600">防颱大掃除發現操場東側雨水溝有樹葉堆積，預計本週五安排抽吸清理。</p>
+                                <div class="text-slate-400 text-xs flex justify-between pt-1 border-t">
+                                    <span>登記人：營繕組</span>
+                                    <span>2026-09-05</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Selected Node Info Drawer (Bottom of Sidebar) -->
+            <div id="node-info-card" class="border-t border-amber-200 bg-amber-50/90 p-3 text-xs hidden">
+                <div class="flex items-center justify-between font-bold text-slate-800 mb-2 border-b pb-1">
+                    <span id="node-title" class="flex items-center gap-1.5 text-amber-900 text-sm">
+                        <i class="fa-solid fa-location-dot text-amber-600"></i> 節點詳細資訊
+                    </span>
+                    <button onclick="closeNodeCard()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-slate-700">
+                    <div><b>節點編號：</b><span id="node-id" class="font-mono text-amber-800">--</span></div>
+                    <div><b>管線類型：</b><span id="node-type">--</span></div>
+                    <div><b>管徑尺寸：</b><span id="node-diameter">--</span></div>
+                    <div><b>埋設深度：</b><span id="node-depth">--</span></div>
+                    <div><b>所屬區域：</b><span id="node-location" class="col-span-2">--</span></div>
+                    <div class="col-span-2 bg-white p-2 rounded border border-amber-200 mt-1">
+                        <b>總務處備註：</b><span id="node-desc" class="text-slate-600">--</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Main View: Interactive SVG Map Container -->
+        <main class="flex-1 bg-slate-200 relative overflow-hidden flex flex-col">
+            
+            <!-- Floating Map Toolbar -->
+            <div class="absolute top-3 left-3 z-10 flex gap-2">
+                <div class="bg-white/95 backdrop-blur border border-slate-300 rounded-lg shadow-md p-1 flex items-center gap-1 text-xs">
+                    <button onclick="zoomMap(1.25)" class="p-2 hover:bg-slate-100 rounded text-slate-700 font-bold" title="放大地圖">
+                        <i class="fa-solid fa-magnifying-glass-plus text-sm"></i>
+                    </button>
+                    <button onclick="zoomMap(0.8)" class="p-2 hover:bg-slate-100 rounded text-slate-700 font-bold" title="縮小地圖">
+                        <i class="fa-solid fa-magnifying-glass-minus text-sm"></i>
+                    </button>
+                    <button onclick="focusArea('full')" class="p-2 hover:bg-slate-100 rounded text-slate-700 font-bold" title="全圖視野">
+                        <i class="fa-solid fa-arrows-to-dot text-sm"></i> 全視角
+                    </button>
+                    <button onclick="focusArea('yangming')" class="p-2 bg-amber-500 hover:bg-amber-600 text-white rounded font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-school"></i> 聚焦陽明高中
+                    </button>
+                </div>
+
+                <div class="hidden lg:flex bg-white/95 backdrop-blur border border-slate-300 rounded-lg shadow-md px-3 py-1.5 items-center gap-2 text-xs">
+                    <span class="text-slate-500">當前視角：</span>
+                    <span class="font-bold text-slate-800">臺北市立陽明高級中學 (基河路 / 承德路五段 / 中正路交會處)</span>
+                </div>
+            </div>
+
+            <!-- Floating Legend on Bottom Right (Mirrors uploaded Image Legend) -->
+            <div class="absolute bottom-4 right-4 z-10 bg-white/95 backdrop-blur border border-slate-300 rounded-lg shadow-lg p-3 text-xs space-y-2 max-w-xs">
+                <div class="font-bold text-slate-800 border-b pb-1 flex items-center justify-between">
+                    <span>圖例說明 (Pipeline Legend)</span>
+                    <i class="fa-solid fa-map text-slate-400"></i>
+                </div>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-1 bg-rose-900 rounded"></span>
+                        <span class="text-slate-800 font-bold">污水管 (深紅)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-1 bg-sky-500 rounded"></span>
+                        <span class="text-slate-800 font-bold">雨水管 (淺藍)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-900 border border-white"></span>
+                        <span class="text-slate-600">污水人孔/陰井</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-sky-600 border border-white"></span>
+                        <span class="text-slate-600">雨水集水井</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 bg-amber-100 border border-amber-500 rounded"></span>
+                        <span class="text-slate-600">陽明校舍建築</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-600 border border-white"></span>
+                        <span class="text-slate-600">截油/酸鹼槽</span>
+                    </div>
+                </div>
+                <!-- Checkboxes panel as shown in image -->
+                <div class="border-t pt-1.5 grid grid-cols-2 gap-1 text-[11px] text-slate-500">
+                    <label class="flex items-center gap-1"><input type="checkbox" checked disabled class="rounded"> 污水 (已啟用)</label>
+                    <label class="flex items-center gap-1"><input type="checkbox" checked disabled class="rounded"> 雨水 (已啟用)</label>
+                    <label class="flex items-center gap-1"><input type="checkbox" disabled class="rounded"> 電信</label>
+                    <label class="flex items-center gap-1"><input type="checkbox" disabled class="rounded"> 電力</label>
+                    <label class="flex items-center gap-1"><input type="checkbox" disabled class="rounded"> 自來水</label>
+                    <label class="flex items-center gap-1"><input type="checkbox" disabled class="rounded"> 瓦斯</label>
+                </div>
+            </div>
+
+            <!-- Interactive SVG Vector Map Viewer -->
+            <div id="map-viewport" class="w-full h-full map-container overflow-hidden relative bg-slate-100">
+                <svg id="svg-map" viewBox="0 0 1200 800" class="w-full h-full transition-transform duration-100 ease-out">
+                    
+                    <!-- BASE MAP: Rivers, Parks, Roads and Blocks -->
+                    <g id="layer-group-base">
+                        <!-- Background Base Light Gray -->
+                        <rect width="1200" height="800" fill="#f1f5f9"/>
+
+                        <!-- Keelung River / Waishuangxi Water Surface (Far West / Left) -->
+                        <path d="M0 0 L150 0 L60 800 L0 800 Z" fill="#93c5fd" opacity="0.75"/>
+                        <text x="45" y="400" font-size="14" font-weight="bold" fill="#1e3a8a" transform="rotate(-82 45 400)">基隆河 / 外雙溪水域</text>
+
+                        <!-- Bailing Riverside Park (百齡左/右岸河濱公園) -->
+                        <path d="M100 0 L230 0 L130 800 L50 800 Z" fill="#dcfce7" opacity="0.85"/>
+                        <text x="135" y="420" font-size="12" fill="#166534" font-weight="bold" transform="rotate(-82 135 420)">百齡右岸河濱公園</text>
+
+                        <!-- Chengde Rd Sec 5 (承德路五段) - Major Highway with Ramps -->
+                        <polygon points="230,0 320,0 200,800 110,800" fill="#fed7aa" stroke="#f97316" stroke-width="2"/>
+                        <line x1="275" y1="0" x2="155" y2="800" stroke="#f97316" stroke-width="1.5" stroke-dasharray="8,6"/>
+                        <text x="235" y="320" font-size="13" font-weight="bold" fill="#c2410c" transform="rotate(-82 235 320)">承 德 路 五 段</text>
+
+                        <!-- Jihe Rd (基河路) - Diagonal Avenue passing right by Yangming High School -->
+                        <polygon points="340,0 410,0 770,800 700,800" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                        <text x="520" y="380" font-size="14" font-weight="bold" fill="#334155" transform="rotate(60 520 380)">基 河 路</text>
+
+                        <!-- Jihe Rd Alley 300 (基河路300巷) -->
+                        <polygon points="560,250 820,250 820,280 575,280" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <text x="680" y="270" font-size="11" font-weight="bold" fill="#475569">基河路 300 巷</text>
+
+                        <!-- Zhongzheng Rd (中正路) - Bottom Main Thoroughfare -->
+                        <polygon points="110,780 1200,530 1200,610 110,860" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                        <text x="800" y="630" font-size="14" font-weight="bold" fill="#334155" transform="rotate(-12 800 630)">中 正 路</text>
+
+                        <!-- Zhongzheng Rd Alley 435 (中正路435巷) -->
+                        <polygon points="760,400 870,590 840,600 740,410" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <text x="800" y="490" font-size="10" font-weight="bold" fill="#64748b" transform="rotate(60 800 490)">中正路435巷</text>
+                    </g>
+
+                    <!-- East Side Municipal Grid & Buildings (士林行政中心與住宅區) -->
+                    <g id="layer-group-grid">
+                        <!-- Shilin District Admin Center Block (士林區行政中心/戶政事務所) -->
+                        <rect x="760" y="620" width="180" height="110" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+                        <text x="850" y="665" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b">士林區行政中心</text>
+                        <text x="850" y="685" text-anchor="middle" font-size="10" fill="#475569">(士林戶政與地政事務所)</text>
+
+                        <!-- Residential Blocks North-East of Jihe Rd -->
+                        <polygon points="600,20 850,20 850,230 580,230" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <text x="700" y="120" text-anchor="middle" font-size="11" font-weight="bold" fill="#94a3b8">基河路東側社區</text>
+
+                        <polygon points="860,20 1200,20 1200,500 860,350" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <text x="1000" y="220" text-anchor="middle" font-size="12" font-weight="bold" fill="#94a3b8">中正路與華榮市場周邊住宅區</text>
+                    </g>
+
+                    <!-- Yangming Senior High School Campus Ground Overlay -->
+                    <g id="layer-group-buildings">
+                        <!-- Campus Boundary Polygon -->
+                        <polygon points="310,130 530,30 680,310 630,590 380,730 280,360" fill="#fef3c7" stroke="#d97706" stroke-width="3" stroke-dasharray="6,3" opacity="0.9"/>
+                        <text x="430" y="75" font-size="16" font-weight="900" fill="#b45309">臺北市立陽明高級中學 校區範圍</text>
+
+                        <!-- Track & Field (200m 操場) Southwest Corner -->
+                        <ellipse cx="380" cy="630" rx="80" ry="48" fill="#fecaca" stroke="#dc2626" stroke-width="2" transform="rotate(-20 380 630)"/>
+                        <text x="380" y="635" text-anchor="middle" font-size="11" font-weight="bold" fill="#991b1b">200m 運動場 / 操場</text>
+
+                        <!-- Gymnasium & Activity Center (體育館/學生活動中心) -->
+                        <rect x="325" y="480" width="85" height="65" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+                        <text x="367" y="517" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">體育館/活動中心</text>
+
+                        <!-- Main Academic Building 1 (第一教學樓) -->
+                        <rect x="420" y="320" width="135" height="35" rx="4" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5"/>
+                        <text x="487" y="342" text-anchor="middle" font-size="11" font-weight="bold" fill="#854d0e">第一教學大樓 (班級教室)</text>
+
+                        <!-- Academic Building 2 (第二教學樓) -->
+                        <rect x="430" y="240" width="125" height="35" rx="4" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5"/>
+                        <text x="492" y="262" text-anchor="middle" font-size="11" font-weight="bold" fill="#854d0e">第二教學大樓</text>
+
+                        <!-- Science Building & Science Labs (科學館/理化實驗室) -->
+                        <rect x="410" y="150" width="115" height="42" rx="4" fill="#e9d5ff" stroke="#9333ea" stroke-width="2"/>
+                        <text x="467" y="175" text-anchor="middle" font-size="11" font-weight="bold" fill="#6b21a8">科學館 (理化實驗室)</text>
+
+                        <!-- Admin & Library Building (行政大樓與圖書館) -->
+                        <rect x="340" y="200" width="60" height="115" rx="4" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5"/>
+                        <text x="370" y="257" text-anchor="middle" font-size="11" font-weight="bold" fill="#9a3412" transform="rotate(-90 370 257)">行政大樓 / 圖書館</text>
+
+                        <!-- Cafeteria & Kitchen (學生餐廳與廚房) -->
+                        <rect x="525" y="410" width="75" height="50" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+                        <text x="562" y="438" text-anchor="middle" font-size="11" font-weight="bold" fill="#991b1b">學生餐廳/廚房</text>
+
+                        <!-- Eco-Pond (校園景觀生態池) -->
+                        <ellipse cx="505" cy="485" rx="26" ry="16" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
+                        <text x="505" y="489" text-anchor="middle" font-size="9" font-weight="bold" fill="#0c4a6e">校園生態池</text>
+                    </g>
+
+                    <!-- RAINWATER PIPELINES (淺藍色 #0284c7 / #38bdf8) -->
+                    <g id="layer-group-rain">
+                        <!-- Jihe Rd Main Rain Box Culvert (基河路雨水箱涵) -->
+                        <path id="pipe-rw-trunk1" d="M350,10 L480,240 L650,550 L750,750" fill="none" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+                        
+                        <!-- Zhongzheng Rd Main Box Culvert (中正路雨水箱涵) -->
+                        <path id="pipe-rw-trunk2" d="M180,760 L650,665 L1180,560" fill="none" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+
+                        <!-- Chengde Rd Rain Drainage Line -->
+                        <path id="pipe-rw-trunk3" d="M280,20 L200,720" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-dasharray="10,4"/>
+
+                        <!-- Yangming High School Internal Rainwater Drainage Loop -->
+                        <!-- Track Perimeter Drain Loop (操場排水環溝) -->
+                        <path id="pipe-rw-c1" d="M310,590 L360,560 L450,600 L420,680 L320,650 Z" fill="none" stroke="#38bdf8" stroke-width="3.5"/>
+
+                        <!-- Science Lab Roof Drain to Jihe Rd -->
+                        <path id="pipe-rw-c2" d="M410,170 L480,240" fill="none" stroke="#38bdf8" stroke-width="3"/>
+
+                        <!-- Classrooms Roof Drains to Eco Pond & Trunk -->
+                        <path id="pipe-rw-c3" d="M420,340 L530,340 L650,550" fill="none" stroke="#38bdf8" stroke-width="3.5"/>
+                        <path id="pipe-rw-c4" d="M525,430 L505,469" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+
+                        <!-- Residential Block Rainwater Connections -->
+                        <path id="pipe-rw-east1" d="M650,250 L820,250 L870,450 L1150,400" fill="none" stroke="#0284c7" stroke-width="3"/>
+                    </g>
+
+                    <!-- SEWAGE PIPELINES (深紅色 #881337 / #4c0519) -->
+                    <g id="layer-group-sewage">
+                        <!-- Yangming High School Internal Sewage Branches -->
+                        <!-- Science Lab Chem Wastewater Line with Acid-Base Interceptor -->
+                        <path id="pipe-sw-c1" d="M467,192 L467,240 L380,240" fill="none" stroke="#881337" stroke-width="4"/>
+
+                        <!-- Admin & Academic Restrooms Sewage Collectors -->
+                        <path id="pipe-sw-c2" d="M380,315 L380,410 L485,410" fill="none" stroke="#881337" stroke-width="4"/>
+
+                        <!-- Cafeteria Kitchen Grease Interceptor Collector -->
+                        <path id="pipe-sw-c3" d="M562,460 L562,510 L485,510 L485,410" fill="none" stroke="#881337" stroke-width="4.5"/>
+
+                        <!-- Gymnasium Shower & Restrooms Line -->
+                        <path id="pipe-sw-c4" d="M367,545 L367,625 L485,625 L485,510" fill="none" stroke="#881337" stroke-width="4"/>
+
+                        <!-- Campus Outfall 1 to Jihe Rd Main Trunk -->
+                        <path id="pipe-sw-main1" d="M485,410 L600,410 L635,520" fill="none" stroke="#4c0519" stroke-width="5.5"/>
+
+                        <!-- Campus Outfall 2 to Zhongzheng Rd Main Trunk -->
+                        <path id="pipe-sw-main2" d="M485,625 L580,685" fill="none" stroke="#4c0519" stroke-width="5.5"/>
+
+                        <!-- External Municipal Sewage Mains along Jihe Rd & Chengde Rd -->
+                        <path id="pipe-sw-ext1" d="M280,100 L320,380 L350,550 L380,720" fill="none" stroke="#4c0519" stroke-width="4.5"/>
+                        <path id="pipe-sw-ext2" d="M635,520 L730,650 L1120,580" fill="none" stroke="#4c0519" stroke-width="5"/>
+                        <path id="pipe-sw-ext3" d="M280,100 L180,250 L140,500" fill="none" stroke="#4c0519" stroke-width="3.5" stroke-dasharray="6,3"/>
+
+                        <!-- Dense Sewage Grid in East Residential Area (As shown in image) -->
+                        <path id="pipe-sw-east1" d="M820,250 L950,220 L1150,180" fill="none" stroke="#881337" stroke-width="2.5"/>
+                        <path id="pipe-sw-east2" d="M870,450 L1000,420 L1180,390" fill="none" stroke="#881337" stroke-width="2.5"/>
+                        <path id="pipe-sw-east3" d="M950,220 L1000,420 L1050,600" fill="none" stroke="#881337" stroke-width="2.5"/>
+                    </g>
+
+                    <!-- NODES (MANHOLES & CATCH BASINS) GROUP -->
+                    <g id="layer-group-nodes">
+
+                        <!-- SEWAGE NODES (深紅點 - 可點擊) -->
+                        <g id="sewage-nodes">
+                            <!-- Science Lab Neutralization Node -->
+                            <circle cx="467" cy="192" r="8" fill="#059669" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-10 transition-all" onclick="selectNode('SW-01')"/>
+                            <text x="478" y="188" font-size="10" font-weight="bold" fill="#047857">SW-01 (化驗水預處理)</text>
+
+                            <!-- Admin Restroom Node -->
+                            <circle cx="380" cy="240" r="7" fill="#881337" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-9 transition-all" onclick="selectNode('SW-02')"/>
+                            <text x="310" y="235" font-size="9" fill="#881337">SW-02 (行政樓)</text>
+
+                            <!-- Academic Restroom Node -->
+                            <circle cx="380" cy="315" r="7" fill="#881337" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-9 transition-all" onclick="selectNode('SW-03')"/>
+                            <text x="310" y="310" font-size="9" fill="#881337">SW-03 (教學樓)</text>
+
+                            <!-- Kitchen Grease Interceptor Node -->
+                            <circle cx="562" cy="460" r="8.5" fill="#059669" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-11 transition-all" onclick="selectNode('SW-04')"/>
+                            <text x="575" y="465" font-size="10" font-weight="bold" fill="#047857">SW-04 (廚房截油槽)</text>
+
+                            <!-- Central Campus Sewage Collector Node -->
+                            <circle cx="485" cy="410" r="8.5" fill="#881337" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-11 transition-all" onclick="selectNode('SW-05')"/>
+                            <text x="425" y="405" font-size="10" font-weight="bold" fill="#881337">SW-05 (校區污水總匯)</text>
+
+                            <!-- Gym Toilet Node -->
+                            <circle cx="367" cy="545" r="7" fill="#881337" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-9 transition-all" onclick="selectNode('SW-06')"/>
+
+                            <!-- South Collector Node -->
+                            <circle cx="485" cy="625" r="8" fill="#881337" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-10 transition-all" onclick="selectNode('SW-07')"/>
+
+                            <!-- Main Outfall Manhole (Jihe Rd Connection) -->
+                            <circle cx="635" cy="520" r="10" fill="#be123c" stroke="#fef08a" stroke-width="3" class="cursor-pointer hover:r-12 transition-all" onclick="selectNode('SW-OUT1')"/>
+                            <text x="648" y="515" font-size="11" font-weight="bold" fill="#be123c">SW-OUT1 (基河路污水幹管出口)</text>
+
+                            <!-- Zhongzheng Rd Outfall Node -->
+                            <circle cx="580" cy="685" r="10" fill="#be123c" stroke="#fef08a" stroke-width="3" class="cursor-pointer hover:r-12 transition-all" onclick="selectNode('SW-OUT2')"/>
+                            <text x="592" y="700" font-size="10" font-weight="bold" fill="#be123c">SW-OUT2 (中正路幹管出口)</text>
+
+                            <!-- East Grid Sewage Nodes -->
+                            <circle cx="820" cy="250" r="6" fill="#881337" stroke="#ffffff" stroke-width="1.5" class="cursor-pointer" onclick="selectNode('SW-EAST1')"/>
+                            <circle cx="950" cy="220" r="6" fill="#881337" stroke="#ffffff" stroke-width="1.5" class="cursor-pointer" onclick="selectNode('SW-EAST2')"/>
+                            <circle cx="870" cy="450" r="6" fill="#881337" stroke="#ffffff" stroke-width="1.5" class="cursor-pointer" onclick="selectNode('SW-EAST3')"/>
+                        </g>
+
+                        <!-- RAINWATER NODES (淺藍點 - 可點擊) -->
+                        <g id="rain-nodes">
+                            <!-- Science Roof Rain Intake -->
+                            <circle cx="410" cy="170" r="6.5" fill="#0284c7" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-9 transition-all" onclick="selectNode('RW-01')"/>
+
+                            <!-- Jihe Rd North Catch Basin -->
+                            <circle cx="480" cy="240" r="7.5" fill="#0284c7" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-10 transition-all" onclick="selectNode('RW-02')"/>
+                            <text x="492" y="235" font-size="10" font-weight="bold" fill="#0369a1">RW-02 (基河路雨水井)</text>
+
+                            <!-- Classroom Roof Drain Junction -->
+                            <circle cx="530" cy="340" r="6.5" fill="#0284c7" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-9 transition-all" onclick="selectNode('RW-03')"/>
+
+                            <!-- Eco Pond Overflow Catch Basin -->
+                            <circle cx="505" cy="469" r="6.5" fill="#0284c7" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-9 transition-all" onclick="selectNode('RW-04')"/>
+
+                            <!-- Track East Drainage Basin -->
+                            <circle cx="450" cy="600" r="8" fill="#0284c7" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-10 transition-all" onclick="selectNode('RW-05')"/>
+                            <text x="462" y="595" font-size="10" font-weight="bold" fill="#0369a1">RW-05 (操場雨水集水井)</text>
+
+                            <!-- Jihe / Zhongzheng Main Rain Outfall -->
+                            <circle cx="650" cy="550" r="10" fill="#0284c7" stroke="#e0f2fe" stroke-width="3" class="cursor-pointer hover:r-12 transition-all" onclick="selectNode('RW-OUT1')"/>
+                            <text x="665" y="550" font-size="11" font-weight="bold" fill="#0369a1">RW-OUT1 (市府雨水箱涵幹線)</text>
+                        </g>
+
+                    </g>
+                </svg>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL 1: Water System Principles & Purpose Detailed Modal -->
+    <div id="modal-water-system" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+            <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+                <h3 class="font-bold text-base flex items-center gap-2 text-amber-400">
+                    <i class="fa-solid fa-droplet text-lg"></i>
+                    臺北市立陽明高中 - 雨水與汙水管線功能、用途及水的進出完整解析
+                </h3>
+                <button onclick="closeInfoModal('waterSystem')" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-5 text-xs md:text-sm text-slate-700 leading-relaxed">
+                <!-- Overview Banner -->
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
+                    <h4 class="font-bold text-amber-900 text-base mb-1">為甚麼學校需要落實「雨汙分流」？</h4>
+                    <p>
+                        陽明高中位於基河路、承德路與中正路交會處，緊鄰基隆河。若將雨水與污水混合排放，暴雨時會導致污水處理廠負荷過載，更會造成嚴重的水質污染與校園積水。因此，學校建置了兩套獨立不相混接的管網系統。
+                    </p>
+                </div>
+
+                <!-- Section 1: Sewage -->
+                <div class="border rounded-lg p-4 space-y-3 bg-rose-50/40 border-rose-200">
+                    <h4 class="font-bold text-rose-900 text-base flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-rose-900 inline-block"></span>
+                        1. 汙水管線系統（深紅色管線）
+                    </h4>
+                    <div class="grid md:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-white p-3 rounded border border-rose-100 shadow-sm space-y-1">
+                            <span class="font-bold text-rose-900 block text-sm"><i class="fa-solid fa-bullseye"></i> 功能與用途</span>
+                            <p class="text-slate-600">專門收集全校師生生活活動所產生的廢水，包括教學大樓廁所、洗手台、廚房洗滌、體育館淋浴間及化學/生物實驗室廢水。</p>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-rose-100 shadow-sm space-y-1">
+                            <span class="font-bold text-rose-900 block text-sm"><i class="fa-solid fa-route"></i> 水的進出說明</span>
+                            <p class="text-slate-600"><b>進水：</b>來自臺北自來水事業處供水。<br><b>出水：</b>經過預處理後，經深紅管線匯集至基河路與中正路地下污水幹管，送往<b>迪化/八里污水處理廠</b>淨化處理。</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3 rounded border border-rose-100 text-xs space-y-1">
+                        <span class="font-bold text-slate-800"><i class="fa-solid fa-shield-halved text-rose-700"></i> 總務處關鍵管制設備：</span>
+                        <ul class="list-disc list-inside text-slate-600 space-y-0.5">
+                            <li><b>學生餐廳/廚房 [SW-04]：</b>設置「油脂截留器」，浮油殘渣需定時除油，防止油脂凝固堵塞下水道。</li>
+                            <li><b>科學館理化實驗室 [SW-01]：</b>設置「酸鹼中和沉澱槽」，實驗廢液嚴禁直接倒入水槽，需預先中和處理。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Section 2: Rainwater -->
+                <div class="border rounded-lg p-4 space-y-3 bg-sky-50/40 border-sky-200">
+                    <h4 class="font-bold text-sky-900 text-base flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-sky-500 inline-block"></span>
+                        2. 雨水管線系統（淺藍色管線）
+                    </h4>
+                    <div class="grid md:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-white p-3 rounded border border-sky-100 shadow-sm space-y-1">
+                            <span class="font-bold text-sky-900 block text-sm"><i class="fa-solid fa-bullseye"></i> 功能與用途</span>
+                            <p class="text-slate-600">收集天降雨水、地表逕流、200公尺操場及校舍屋頂積水，依靠重力迅速宣洩，防止颱風及豪雨期間校園發生淹水災情。</p>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-sky-100 shadow-sm space-y-1">
+                            <span class="font-bold text-sky-900 block text-sm"><i class="fa-solid fa-route"></i> 水的進出說明</span>
+                            <p class="text-slate-600"><b>進水：</b>天然大氣降雨降落校區。<br><b>出水：</b>經由雨水溝與陰井匯入承德路五段與基河路雨水箱涵，最終由<b>基隆河抽水站</b>抽排入基隆河。</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3 rounded border border-sky-100 text-xs space-y-1">
+                        <span class="font-bold text-slate-800"><i class="fa-solid fa-broom text-sky-600"></i> 總務處日常維護重點：</span>
+                        <p class="text-slate-600">防汛期（每年5-11月）前，必須派員清理操場周邊雨水溝及校舍落水管口之落葉與泥沙，確保重力流順暢。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 px-5 py-3 border-t flex justify-end">
+                <button onclick="closeInfoModal('waterSystem')" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-4 py-1.5 rounded text-xs transition shadow">
+                    已充分瞭解，關閉視窗
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Report Maintenance Modal -->
+    <div id="modal-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+            <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                <h3 class="font-bold text-sm text-amber-400">總務處管線維護 / 異常報修登記</h3>
+                <button onclick="closeReportModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="submitReport(event)" class="p-4 space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">對應管線/節點編號</label>
+                    <input type="text" id="report-node" required placeholder="例如：SW-04 餐廳截油槽" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">維護/報修類型</label>
+                    <select id="report-type" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option>例行定期抽吸清理</option>
+                        <option>管線阻塞/排水不良</option>
+                        <option>人孔蓋破損/異音</option>
+                        <option>防汛期前淤泥清掃</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">詳細狀況描述</label>
+                    <textarea id="report-desc" rows="3" required placeholder="請輸入現場狀況描述與預計處理時間..." class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">登記人員 / 單位</label>
+                    <input type="text" id="report-author" required placeholder="例如：總務處 庶務組 王組長" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeReportModal()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300">取消</button>
+                    <button type="submit" class="px-4 py-1.5 bg-amber-600 text-white rounded hover:bg-amber-500 font-bold shadow">送出登記</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Logic Script -->
+    <script>
+        // Complete Database of Pipeline Nodes Matching Taipei Municipal Yangming Senior High School Layout
+        const nodeDatabase = [
+            { id: 'SW-01', type: '汙水管 (酸鹼中和)', category: 'sewage', location: '科學館 (理化實驗室)', diameter: 'Ø 200mm PVC', depth: '1.8 公尺', desc: '理化實驗室廢液預處理連通管，設有酸鹼中和沉澱池。' },
+            { id: 'SW-02', type: '汙水管', category: 'sewage', location: '行政大樓與圖書館', diameter: 'Ø 200mm Cast Iron', depth: '2.1 公尺', desc: '行政人員洗手面盆與廁所廢水集水井。' },
+            { id: 'SW-03', type: '汙水管', category: 'sewage', location: '第一/第二教學大樓', diameter: 'Ø 300mm RC', depth: '2.3 公尺', desc: '學生主要洗手間廢水匯集點。' },
+            { id: 'SW-04', type: '汙水管 (油脂截留)', category: 'sewage', location: '學生餐廳與廚房', diameter: 'Ø 300mm Stainless', depth: '1.5 公尺', desc: '設有油脂截留器，總務處定於每月15日清理油污與浮渣。' },
+            { id: 'SW-05', type: '汙水管', category: 'sewage', location: '校園中央總匯集井', diameter: 'Ø 400mm RC', depth: '2.8 公尺', desc: '全校校舍生活污水總匯集樞紐人孔。' },
+            { id: 'SW-06', type: '汙水管', category: 'sewage', location: '體育館/學生活動中心', diameter: 'Ø 200mm PVC', depth: '2.0 公尺', desc: '體育館淋浴間與衛生設備污水管。' },
+            { id: 'SW-07', type: '汙水管', category: 'sewage', location: '操場南側匯集井', diameter: 'Ø 300mm RC', depth: '2.4 公尺', desc: '南側校區衛生設備污水匯集點。' },
+            { id: 'SW-OUT1', type: '汙水出口', category: 'sewage', location: '基河路下水道幹管出口', diameter: 'Ø 500mm RC', depth: '3.5 公尺', desc: '校區污水排入臺北市政府基河路幹線出口 (直通迪化污水處理廠)。' },
+            { id: 'SW-OUT2', type: '汙水出口', category: 'sewage', location: '中正路下水道幹管出口', diameter: 'Ø 500mm RC', depth: '3.6 公尺', desc: '校區次要污水排入中正路地下污水幹線。' },
+            { id: 'SW-EAST1', type: '市府污水管', category: 'sewage', location: '基河路東側社區', diameter: 'Ø 300mm RC', depth: '2.2 公尺', desc: '基河路 300 巷周邊民宅污水人孔。' },
+            { id: 'SW-EAST2', type: '市府污水管', category: 'sewage', location: '中正路 435 巷口', diameter: 'Ø 400mm RC', depth: '2.7 公尺', desc: '士林行政中心北側污水幹線節點。' },
+
+            { id: 'RW-01', type: '雨水管', category: 'rain', location: '科學館屋頂落水', diameter: 'Ø 250mm', depth: '0.8 公尺', desc: '科學館屋頂雨水高位落水管。' },
+            { id: 'RW-02', type: '雨水管', category: 'rain', location: '基河路側雨水陰井', diameter: 'Ø 400mm RC', depth: '1.2 公尺', desc: '東北側校門地表雨水逕流集水井。' },
+            { id: 'RW-03', type: '雨水管', category: 'rain', location: '教學區中庭雨水溝', diameter: 'Ø 300mm', depth: '1.0 公尺', desc: '中庭花園地表排水連接管。' },
+            { id: 'RW-04', type: '雨水管', category: 'rain', location: '景觀生態池溢流井', diameter: 'Ø 300mm', depth: '0.9 公尺', desc: '生態池滿水溢流排水管。' },
+            { id: 'RW-05', type: '雨水管', category: 'rain', location: '200m 操場東側陰井', diameter: 'Ø 500mm U-Ditch', depth: '1.4 公尺', desc: '操場跑道排水溝總集水井，防颱重點清淤區。' },
+            { id: 'RW-OUT1', type: '雨水箱涵', category: 'rain', location: '基河路/中正路雨水箱涵', diameter: '1.5m x 1.5m 箱涵', depth: '2.5 公尺', desc: '市府雨水箱涵，直通基隆河抽水站。' }
+        ];
+
+        // Global Application State Variables
+        let isFlowActive = true;
+        let activeFilter = 'all';
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            renderNodeList(nodeDatabase);
+            applyFlowAnimationStyles();
+            setupPanZoom();
+        };
+
+        // Switch Left Sidebar Tabs
+        function switchTab(tabName) {
+            const tabs = ['layers', 'search', 'info', 'maintenance'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const panel = document.getElementById(`panel-${t}`);
+                if (t === tabName) {
+                    btn.classList.add('border-amber-600', 'text-amber-700', 'bg-white');
+                    btn.classList.remove('border-transparent');
+                    panel.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('border-amber-600', 'text-amber-700', 'bg-white');
+                    btn.classList.add('border-transparent');
+                    panel.classList.add('hidden');
+                }
+            });
+        }
+
+        // Toggle Layer Visibility
+        function toggleLayer(layerType) {
+            const isChecked = document.getElementById(`layer-${layerType}`).checked;
+            const targetGroup = document.getElementById(`layer-group-${layerType}`);
+            if (targetGroup) {
+                targetGroup.style.display = isChecked ? 'inline' : 'none';
+            }
+        }
+
+        // Toggle Flow Animation Classes
+        function toggleFlowAnimation() {
+            isFlowActive = !isFlowActive;
+            const statusText = document.getElementById('flow-status');
+            const sewagePipes = document.querySelectorAll('#layer-group-sewage path');
+            const rainPipes = document.querySelectorAll('#layer-group-rain path');
+
+            if (isFlowActive) {
+                statusText.innerText = '流向播放中';
+                statusText.className = 'text-xs text-emerald-600 font-semibold';
+                sewagePipes.forEach(p => p.classList.add('flow-animated-sewage'));
+                rainPipes.forEach(p => p.classList.add('flow-animated-rain'));
+            } else {
+                statusText.innerText = '流向已暫停';
+                statusText.className = 'text-xs text-slate-400 font-semibold';
+                sewagePipes.forEach(p => p.classList.remove('flow-animated-sewage'));
+                rainPipes.forEach(p => p.classList.remove('flow-animated-rain'));
+            }
+        }
+
+        function applyFlowAnimationStyles() {
+            const sewagePipes = document.querySelectorAll('#layer-group-sewage path');
+            const rainPipes = document.querySelectorAll('#layer-group-rain path');
+            sewagePipes.forEach(p => p.classList.add('flow-animated-sewage'));
+            rainPipes.forEach(p => p.classList.add('flow-animated-rain'));
+        }
+
+        // Reset Layers Checkboxes
+        function resetLayers() {
+            ['sewage', 'rain', 'nodes', 'buildings', 'grid'].forEach(l => {
+                const cb = document.getElementById(`layer-${l}`);
+                if (cb) {
+                    cb.checked = true;
+                    toggleLayer(l);
+                }
+            });
+            if (!isFlowActive) toggleFlowAnimation();
+            focusArea('yangming');
+        }
+
+        // Render Search Results List
+        function renderNodeList(list) {
+            const container = document.getElementById('node-list');
+            const countElem = document.getElementById('result-count');
+            countElem.innerText = `${list.length} 筆`;
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-400 py-4">未找到匹配的管線節點</div>';
+                return;
+            }
+
+            list.forEach(node => {
+                const isSewage = node.category === 'sewage';
+                const badgeBg = isSewage ? 'bg-rose-100 text-rose-900' : 'bg-sky-100 text-sky-800';
+                const dotBg = isSewage ? 'bg-rose-900' : 'bg-sky-500';
+
+                const item = document.createElement('div');
+                item.className = 'p-2 rounded hover:bg-amber-50 cursor-pointer border border-transparent hover:border-amber-200 transition flex items-center justify-between text-xs';
+                item.onclick = () => selectNode(node.id);
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full ${dotBg}"></span>
+                        <div>
+                            <div class="font-bold text-slate-800">${node.id} - ${node.location}</div>
+                            <div class="text-slate-500 font-mono text-[10px]">${node.diameter} | 深度 ${node.depth}</div>
+                        </div>
+                    </div>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-medium ${badgeBg}">${node.type}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Filter Nodes in Search Tab
+        function filterNodes() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = nodeDatabase.filter(node => {
+                const matchCategory = activeFilter === 'all' || node.category === activeFilter;
+                const matchQuery = node.id.toLowerCase().includes(query) ||
+                                  node.location.toLowerCase().includes(query) ||
+                                  node.type.toLowerCase().includes(query) ||
+                                  node.desc.toLowerCase().includes(query);
+                return matchCategory && matchQuery;
+            });
+            renderNodeList(filtered);
+        }
+
+        function filterType(type) {
+            activeFilter = type;
+            ['all', 'sewage', 'rain'].forEach(t => {
+                const btn = document.getElementById(`filter-btn-${t}`);
+                if (t === type) {
+                    btn.className = 'px-2.5 py-1 rounded-full bg-amber-600 text-white font-medium';
+                } else {
+                    btn.className = 'px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200';
+                }
+            });
+            filterNodes();
+        }
+
+        // Node Selection Handler
+        function selectNode(nodeId) {
+            const data = nodeDatabase.find(n => n.id === nodeId);
+            if (!data) return;
+
+            // Update Drawer
+            document.getElementById('node-id').innerText = data.id;
+            document.getElementById('node-type').innerText = data.type;
+            document.getElementById('node-diameter').innerText = data.diameter;
+            document.getElementById('node-depth').innerText = data.depth;
+            document.getElementById('node-location').innerText = data.location;
+            document.getElementById('node-desc').innerText = data.desc;
+
+            const card = document.getElementById('node-info-card');
+            card.classList.remove('hidden');
+
+            // Visual Highlight Pulse Animation
+            document.querySelectorAll('circle').forEach(c => c.classList.remove('node-selected'));
+            const circles = document.querySelectorAll('circle');
+            circles.forEach(c => {
+                if (c.getAttribute('onclick') && c.getAttribute('onclick').includes(nodeId)) {
+                    c.classList.add('node-selected');
+                }
+            });
+        }
+
+        function closeNodeCard() {
+            document.getElementById('node-info-card').classList.add('hidden');
+            document.querySelectorAll('circle').forEach(c => c.classList.remove('node-selected'));
+        }
+
+        // Map Viewport Quick Preset Views
+        function focusArea(area) {
+            const svg = document.getElementById('svg-map');
+            if (area === 'yangming') {
+                svg.setAttribute('viewBox', '260 20 460 720');
+            } else if (area === 'kitchen') {
+                svg.setAttribute('viewBox', '450 350 250 220');
+                selectNode('SW-04');
+            } else if (area === 'science') {
+                svg.setAttribute('viewBox', '350 100 250 220');
+                selectNode('SW-01');
+            } else if (area === 'track') {
+                svg.setAttribute('viewBox', '280 480 320 280');
+                selectNode('RW-05');
+            } else if (area === 'admin_center') {
+                svg.setAttribute('viewBox', '600 450 500 350');
+            } else if (area === 'full') {
+                svg.setAttribute('viewBox', '0 0 1200 800');
+            }
+        }
+
+        // Map Zoom & Pan Logic
+        function zoomMap(factor) {
+            const svg = document.getElementById('svg-map');
+            let viewBox = svg.getAttribute('viewBox').split(' ').map(Number);
+            let w = viewBox[2] * factor;
+            let h = viewBox[3] * factor;
+            let x = viewBox[0] + (viewBox[2] - w) / 2;
+            let y = viewBox[1] + (viewBox[3] - h) / 2;
+            svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+        }
+
+        function setupPanZoom() {
+            const container = document.getElementById('map-viewport');
+            const svg = document.getElementById('svg-map');
+            let isDragging = false;
+            let startX, startY, viewBox;
+
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                viewBox = svg.getAttribute('viewBox').split(' ').map(Number);
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = (e.clientX - startX) * (viewBox[2] / container.clientWidth);
+                const dy = (e.clientY - startY) * (viewBox[3] / container.clientHeight);
+                svg.setAttribute('viewBox', `${viewBox[0] - dx} ${viewBox[1] - dy} ${viewBox[2]} ${viewBox[3]}`);
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+        }
+
+        // Modal Open / Close Handlers
+        function openInfoModal(type) {
+            if (type === 'waterSystem') {
+                document.getElementById('modal-water-system').classList.remove('hidden');
+            }
+        }
+        function closeInfoModal(type) {
+            if (type === 'waterSystem') {
+                document.getElementById('modal-water-system').classList.add('hidden');
+            }
+        }
+
+        function openReportModal() {
+            document.getElementById('modal-report').classList.remove('hidden');
+        }
+        function closeReportModal() {
+            document.getElementById('modal-report').classList.add('hidden');
+        }
+
+        function submitReport(e) {
+            e.preventDefault();
+            const node = document.getElementById('report-node').value;
+            const type = document.getElementById('report-type').value;
+            const desc = document.getElementById('report-desc').value;
+            const author = document.getElementById('report-author').value;
+
+            const list = document.getElementById('maintenance-logs');
+            const newRecord = document.createElement('div');
+            newRecord.className = 'border rounded-lg p-2.5 bg-amber-50/60 border-amber-200 space-y-1';
+            newRecord.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-slate-800">[${node}] ${type}</span>
+                    <span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.2 rounded font-medium">新增登記</span>
+                </div>
+                <p class="text-slate-600">${desc}</p>
+                <div class="text-slate-400 text-xs flex justify-between pt-1 border-t">
+                    <span>登記人：${author}</span>
+                    <span>2026-09-13</span>
+                </div>
+            `;
+            list.prepend(newRecord);
+            closeReportModal();
+        }
+    </script>
+</body>
+</html>
