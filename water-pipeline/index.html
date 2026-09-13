@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="陽明高中總務處雨水與污水管線位置查詢工具">
+  <title>陽明高中｜雨污水管線查詢</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <style>
+    :root{--ink:#e9f2f5;--muted:#97a9b2;--panel:#111e2a;--panel2:#172633;--line:#2b3b47;--rain:#56d9df;--sewer:#a63d48;--bg:#07111b;--focus:#fff3a7}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans TC","PingFang TC",system-ui,sans-serif}button{font:inherit}
+    body{display:grid;grid-template-rows:auto 1fr}header{height:68px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#0b1722;z-index:5}
+    .brand{display:flex;align-items:center;gap:13px}.mark{width:44px;height:44px;display:block;filter:drop-shadow(0 4px 7px #0008);transition:transform .2s ease}.brand:hover .mark{transform:rotate(-5deg) translateY(-2px)}.brand h1{font-size:1.05rem;margin:0;letter-spacing:.04em}.brand small{color:var(--muted);display:block;margin-top:2px}
+    .status{display:flex;align-items:center;gap:8px;color:#bad0d8;font-size:.8rem}.status i{width:7px;height:7px;border-radius:50%;background:#58cc94;box-shadow:0 0 0 4px #58cc9422}
+    main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 354px}.workspace{min-width:0;min-height:620px;position:relative;overflow:hidden;background:#d9d5c8}
+    #map{width:100%;height:100%;display:block;touch-action:none;cursor:grab}.workspace.dragging #map{cursor:grabbing}
+    .controls{position:absolute;left:18px;top:18px;display:grid;gap:10px;z-index:2}.control-card{background:#0b1722eb;border:1px solid #334653;border-radius:14px;padding:8px;box-shadow:0 12px 28px #00101e4d;backdrop-filter:blur(8px)}
+    .seg{display:flex;gap:5px}.seg button,.icon-btn{border:0;border-radius:9px;background:transparent;color:#b7c7cd;padding:9px 12px;cursor:pointer}.seg button[aria-pressed="true"],.icon-btn:hover{background:#263947;color:#fff}.icon-btn{width:42px;height:42px;font-size:1.25rem;padding:0}.zoom{display:grid;grid-template-columns:repeat(3,42px);gap:4px}
+    .layers{position:absolute;left:18px;bottom:18px;background:#0b1722eb;border:1px solid #334653;border-radius:14px;padding:12px 14px;box-shadow:0 12px 28px #00101e4d;display:flex;gap:14px;align-items:center;z-index:2}.layers label{display:flex;align-items:center;gap:8px;font-size:.9rem;cursor:pointer}.swatch{width:24px;height:5px;border-radius:5px}.swatch.rain{background:var(--rain)}.swatch.sewer{background:var(--sewer)}input{accent-color:#62d5db;width:17px;height:17px}.hint{font-size:.76rem;color:#aebbc0;border-left:1px solid #3a4d59;padding-left:13px}
+    aside{background:var(--panel);border-left:1px solid var(--line);overflow:auto}.side-inner{padding:22px 22px 40px}.eyebrow{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:#7f9aa7}.side-inner h2{font-size:1.55rem;line-height:1.25;margin:8px 0 10px}.lead{font-size:.9rem;line-height:1.65;color:#b7c6cc;margin:0 0 20px}
+    .key{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:22px}.key article{padding:13px;border-radius:12px;background:var(--panel2);border:1px solid #2a3d49}.key b{display:flex;align-items:center;gap:8px;font-size:.9rem}.key p{font-size:.76rem;line-height:1.5;color:#a9bbc3;margin:8px 0 0}.dot{width:9px;height:9px;border-radius:50%}.rain-dot{background:var(--rain)}.sewer-dot{background:var(--sewer)}
+    .flow{border-top:1px solid var(--line);padding-top:19px}.flow h3,.notes h3{font-size:.94rem;margin:0 0 13px}.flow-row{display:grid;grid-template-columns:34px 1fr;gap:10px;margin-bottom:15px}.num{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;background:#223542;color:#cce4eb;font-size:.78rem}.flow-row b{font-size:.87rem}.flow-row p{margin:4px 0 0;color:#99adb6;font-size:.8rem;line-height:1.55}
+    .route{margin:10px 0 21px;padding:12px;border:1px dashed #40545f;border-radius:11px;color:#c4d2d7;font-size:.8rem;line-height:1.7}.route strong{color:#fff}.arrow{color:#6f8994;margin:0 4px}.notes{border-top:1px solid var(--line);padding-top:19px}.notes ul{padding-left:18px;margin:0;color:#a9bbc3;font-size:.8rem;line-height:1.7}.source{margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:.72rem;line-height:1.6;color:#778e99}
+    .loading{position:absolute;inset:0;display:grid;place-items:center;background:#d9d5c8;color:#1b3541;font-weight:700;z-index:1}.loading.hide{display:none}.error{color:#7d2028}
+    button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+    @media(max-width:880px){header{height:auto;min-height:64px;padding:10px 14px}.brand small,.status span{display:none}main{display:block}.workspace{height:64svh;min-height:440px}aside{border-left:0;border-top:1px solid var(--line)}.side-inner{padding:20px}.layers{right:12px;left:12px;bottom:12px;flex-wrap:wrap}.hint{display:none}.controls{left:12px;top:12px}.key{grid-template-columns:1fr 1fr}}
+    @media(max-width:480px){.workspace{height:58svh}.seg button{padding:8px 9px;font-size:.82rem}.key{grid-template-columns:1fr}.layers{gap:10px}.side-inner h2{font-size:1.35rem}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><img class="mark" src="logo.svg" alt=""><div><h1>陽明高中｜雨污水管線查詢</h1><small>總務處管線位置輔助圖</small></div></div>
+    <div class="status"><i></i><span>依市府管線圖整理 · 2026.09</span></div>
+  </header>
+  <main>
+    <section class="workspace" id="workspace" aria-label="互動式管線地圖">
+      <canvas id="map" role="img" aria-label="陽明高中周圍雨水與污水管線圖；可拖曳與縮放"></canvas>
+      <div class="loading" id="loading">正在整理管線圖…</div>
+      <div class="controls">
+        <div class="control-card seg" aria-label="地圖範圍">
+          <button type="button" data-view="campus" aria-pressed="true">校區放大</button>
+          <button type="button" data-view="overview" aria-pressed="false">周邊全圖</button>
+        </div>
+        <div class="control-card zoom" aria-label="縮放控制">
+          <button class="icon-btn" id="zoomIn" type="button" aria-label="放大">＋</button>
+          <button class="icon-btn" id="zoomOut" type="button" aria-label="縮小">−</button>
+          <button class="icon-btn" id="reset" type="button" aria-label="回到預設視角">⌂</button>
+        </div>
+      </div>
+      <div class="layers">
+        <label><input id="sewer" type="checkbox" checked><span class="swatch sewer"></span>污水管</label>
+        <label><input id="rain" type="checkbox" checked><span class="swatch rain"></span>雨水管</label>
+        <label><input id="enhance" type="checkbox" checked>加強顯示</label>
+        <span class="hint">拖曳移動 · 滾輪或雙指縮放</span>
+      </div>
+    </section>
+    <aside>
+      <div class="side-inner">
+        <div class="eyebrow">Facilities reference</div>
+        <h2>校區的水，從哪裡來、往哪裡去？</h2>
+        <p class="lead">本圖只強調深紅色污水與淺藍色雨水管線。建物維持市府底圖原有圖塊，不另加大樓名稱，方便依現場位置比對。</p>
+        <div class="key">
+          <article><b><span class="dot sewer-dot"></span>污水管</b><p>收集廁所、洗手台、清潔及校園生活產生的廢水，送往公共污水系統處理。</p></article>
+          <article><b><span class="dot rain-dot"></span>雨水管</b><p>收集屋頂、操場、道路與空地降雨逕流，快速排離校區，降低積淹水風險。</p></article>
+        </div>
+        <section class="flow">
+          <h3>陽明高中水流進出</h3>
+          <div class="flow-row"><span class="num">01</span><div><b>用水進入校園</b><p>自來水經給水系統進入各使用點；本頁不顯示自來水管，避免與雨污水管混淆。</p></div></div>
+          <div class="flow-row"><span class="num">02</span><div><b>使用後分流</b><p>室內生活廢水進入污水管；屋頂、地面與操場降雨則進入雨水口及雨水管。</p></div></div>
+          <div class="flow-row"><span class="num">03</span><div><b>排出校區</b><p>兩套管線各自接往校外公共系統：污水送處理設施，雨水依排水系統排放。</p></div></div>
+          <div class="route"><strong>污水：</strong>生活用水<span class="arrow">→</span>校內污水支管<span class="arrow">→</span>校外公共污水系統<span class="arrow">→</span>處理後排放<br><strong>雨水：</strong>降雨<span class="arrow">→</span>屋頂／地面集水<span class="arrow">→</span>校內雨水管<span class="arrow">→</span>校外排水系統</div>
+        </section>
+        <section class="notes">
+          <h3>查修時怎麼看</h3>
+          <ul><li>先切換單一圖層，確認是雨水或污水系統。</li><li>放大後沿線查找節點，再配合現場人孔、雨水口或建物轉角定位。</li><li>開挖、改管前仍須以最新竣工圖與現場探測確認深度、管徑及精確位置。</li></ul>
+        </section>
+        <p class="source">圖資依使用者提供之臺北市政府管線圖截圖整理。畫面顯示為位置查詢輔助，不取代主管機關正式圖資或現場測量。</p>
+      </div>
+    </aside>
+  </main>
+  <script>
+  (()=>{
+    const canvas=document.querySelector('#map'),ctx=canvas.getContext('2d',{alpha:false}),space=document.querySelector('#workspace'),loading=document.querySelector('#loading');
+    const source=new Image(); source.src='assets/pipeline-overview.png';
+    let dpr=1, view='campus', scale=1, x=0, y=0, dragging=false, sx=0, sy=0, ox=0, oy=0;
+    const masks=document.createElement('canvas'),mctx=masks.getContext('2d',{willReadFrequently:true});
+    function classify(){masks.width=source.naturalWidth;masks.height=source.naturalHeight;mctx.drawImage(source,0,0);const im=mctx.getImageData(0,0,masks.width,masks.height),p=im.data;for(let i=0;i<p.length;i+=4){const r=p[i],g=p[i+1],b=p[i+2];const sewer=r>80&&r>g*1.32&&r>b*1.18&&g<135&&b<125;const rain=g>85&&b>90&&g>r*1.12&&b>r*1.1&&Math.abs(g-b)<75;if(sewer){p[i]=174;p[i+1]=42;p[i+2]=55;p[i+3]=255}else if(rain){p[i]=20;p[i+1]=187;p[i+2]=199;p[i+3]=255}else p[i+3]=0}mctx.putImageData(im,0,0)}
+    function resize(){const r=space.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';resetView()}
+    function resetView(){if(!source.naturalWidth)return;const w=canvas.width/dpr,h=canvas.height/dpr;if(view==='overview'){scale=Math.min(w/source.width,h/source.height);x=(w-source.width*scale)/2;y=(h-source.height*scale)/2}else{const crop={x:350,y:0,w:735,h:850};scale=Math.min(w/crop.w,h/crop.h);x=-crop.x*scale+(w-crop.w*scale)/2;y=-crop.y*scale+(h-crop.h*scale)/2}draw()}
+    function draw(){const w=canvas.width/dpr,h=canvas.height/dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle='#d9d5c8';ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.globalAlpha=document.querySelector('#enhance').checked?.42:1;ctx.filter=document.querySelector('#enhance').checked?'saturate(.48) contrast(.9)':'none';ctx.drawImage(source,0,0);ctx.filter='none';ctx.globalAlpha=1;if(document.querySelector('#enhance').checked){ctx.imageSmoothingEnabled=false;const o=.8/scale;ctx.drawImage(masks,-o,0);ctx.drawImage(masks,o,0);ctx.drawImage(masks,0,-o);ctx.drawImage(masks,0,o);ctx.drawImage(masks,0,0)}ctx.restore();ctx.imageSmoothingEnabled=true}
+    function zoomAt(f,cx=canvas.clientWidth/2,cy=canvas.clientHeight/2){const old=scale, next=Math.max(.25,Math.min(7,scale*f));x=cx-(cx-x)*(next/old);y=cy-(cy-y)*(next/old);scale=next;draw()}
+    source.onload=()=>{classify();resize();loading.classList.add('hide')};source.onerror=()=>{loading.textContent='管線圖載入失敗';loading.classList.add('error')};
+    new ResizeObserver(()=>source.naturalWidth&&resize()).observe(space);
+    document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));resetView()}));
+    ['sewer','rain','enhance'].forEach(id=>document.querySelector('#'+id).addEventListener('change',()=>{if(id!=='enhance'){classify();const data=mctx.getImageData(0,0,masks.width,masks.height),p=data.data,showS=document.querySelector('#sewer').checked,showR=document.querySelector('#rain').checked;for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const isS=p[i]>p[i+1]*2;p[i+3]=(isS?showS:showR)?255:0}mctx.putImageData(data,0,0)}draw()}));
+    document.querySelector('#zoomIn').onclick=()=>zoomAt(1.3);document.querySelector('#zoomOut').onclick=()=>zoomAt(1/1.3);document.querySelector('#reset').onclick=resetView;
+    canvas.addEventListener('wheel',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();zoomAt(e.deltaY<0?1.14:1/1.14,e.clientX-r.left,e.clientY-r.top)},{passive:false});
+    canvas.addEventListener('pointerdown',e=>{dragging=true;space.classList.add('dragging');canvas.setPointerCapture(e.pointerId);sx=e.clientX;sy=e.clientY;ox=x;oy=y});canvas.addEventListener('pointermove',e=>{if(!dragging)return;x=ox+e.clientX-sx;y=oy+e.clientY-sy;draw()});canvas.addEventListener('pointerup',()=>{dragging=false;space.classList.remove('dragging')});canvas.addEventListener('pointercancel',()=>{dragging=false;space.classList.remove('dragging')});
+  })();
+  </script>
+</body>
+</html>
