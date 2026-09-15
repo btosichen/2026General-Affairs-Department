@@ -20,10 +20,19 @@ const baseRooms={
  yicai:{'1F':['烹飪教室','庫房','生科2（國中）'],'2F':['生科1（高中）','藝術庫房','機器教室'],'3F':['家政2','童軍教室','美術2','美術1']},
  gym:{'1F':['漾泉館（溫水游泳池）']},garden:{'1F':['中庭花園']}
 };
-function makeRooms(){let n=0;return buildings.flatMap(b=>Object.entries(baseRooms[b.id]||{}).flatMap(([floor,names])=>names.map(name=>{const isClass=/^\d{3}班$/.test(name);const grade=isClass?name[0]:'';const groups=grade==='2'?{g1:14,g2:14,g3:8}:null;return{id:`r${++n}`,building:b.id,floor,name,className:isClass?name:'',students:isClass?(grade==='2'?36:35):0,desks:isClass?(grade==='2'?38:36):0,status:'normal',note:'',groups,columns:6}})))}
+const classStudents={
+ '101班':34,'102班':37,'103班':36,'104班':36,'105班':36,'106班':37,'107班':37,'108班':34,'109班':37,'110班':37,'111班':36,'112班':34,'113班':28,
+ '201班':28,'202班':41,'203班':41,'204班':22,'205班':25,'206班':44,'207班':44,'208班':44,'209班':34,'210班':34,'211班':34,'212班':33,'213班':18,
+ '301班':30,'302班':41,'303班':41,'304班':38,'305班':27,'306班':26,'307班':28,'308班':31,'309班':30,'310班':46,'311班':43,'312班':36,'313班':22,
+ '701班':22,'702班':29,'703班':30,'704班':29,'705班':30,'706班':31,
+ '801班':21,'802班':30,'803班':30,'804班':32,'805班':32,'806班':33,
+ '901班':24,'902班':32,'903班':31,'904班':30,'905班':32,'906班':31
+};
+function makeRooms(){let n=0;return buildings.flatMap(b=>Object.entries(baseRooms[b.id]||{}).flatMap(([floor,names])=>names.map(name=>{const isClass=/^\d{3}班$/.test(name);const grade=isClass?name[0]:'';const groups=grade==='2'?{g1:14,g2:14,g3:8}:null;return{id:`r${++n}`,building:b.id,floor,name,className:isClass?name:'',students:isClass?(classStudents[name]||0):0,desks:isClass?(grade==='2'?38:36):0,status:'normal',note:'',groups,columns:6}})))}
 const initial=()=>({activeYear:'115',years:{'115':{updated:new Date().toISOString(),rooms:makeRooms()}}});
-let state=load(),selectedBuilding='senior2',selectedFloor='4F',filterStatus='all',query='',seatRoomId=null,editUnlocked=false,lockTimer=null;applyConstructionPlan();
+let state=load(),selectedBuilding='senior2',selectedFloor='4F',filterStatus='all',query='',seatRoomId=null,editUnlocked=false,lockTimer=null;applyClassStudents();applyConstructionPlan();
 function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||initial()}catch{return initial()}}
+function applyClassStudents(){const year=state.years['115'];if(!year)return;let changed=false;year.rooms.forEach(r=>{if(Object.hasOwn(classStudents,r.name)&&r.students!==classStudents[r.name]){r.students=classStudents[r.name];changed=true}});if(changed)localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function applyConstructionPlan(){const year=state.years['115'];if(!year)return;let changed=false;constructionPlan.forEach(batch=>batch.rooms.forEach((name,i)=>{const r=year.rooms.find(x=>x.name===name);if(!r)return;if(!r.constructionDate){r.constructionDate=batch.date;r.constructionOrder=i+1;r.constructionWork='前後置物櫃';changed=true}if(r.status==='normal'){r.status='planned';changed=true}if(!r.note){r.note=`預定 ${batch.date} 施作前後置物櫃；施工前請清空教室前、後方區域。`;changed=true}}));if(changed)localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function save(msg='已儲存'){state.years[state.activeYear].updated=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));render();toast(msg)}
 async function sha256(value){const bytes=new TextEncoder().encode(value),digest=await crypto.subtle.digest('SHA-256',bytes);return[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('')}
