@@ -26,9 +26,10 @@ const classStudents={
  '301班':30,'302班':41,'303班':41,'304班':38,'305班':27,'306班':26,'307班':28,'308班':31,'309班':30,'310班':46,'311班':43,'312班':36,'313班':22,
  '701班':22,'702班':29,'703班':30,'704班':29,'705班':30,'706班':31,
  '801班':21,'802班':30,'803班':30,'804班':32,'805班':32,'806班':33,
- '901班':24,'902班':32,'903班':31,'904班':30,'905班':32,'906班':31
+ '901班':24,'902班':32,'903班':31,'904班':30,'905班':32,'906班':31,
+ '海龍班114':9,'海龍班214':2,'海龍班314':9
 };
-function makeRooms(){let n=0;return buildings.flatMap(b=>Object.entries(baseRooms[b.id]||{}).flatMap(([floor,names])=>names.map(name=>{const isClass=/^\d{3}班$/.test(name);const grade=isClass?name[0]:'';const groups=grade==='2'?{g1:14,g2:14,g3:8}:null;return{id:`r${++n}`,building:b.id,floor,name,className:isClass?name:'',students:isClass?(classStudents[name]||0):0,desks:isClass?(grade==='2'?38:36):0,status:'normal',note:'',groups,columns:6}})))}
+function makeRooms(){let n=0;return buildings.flatMap(b=>Object.entries(baseRooms[b.id]||{}).flatMap(([floor,names])=>names.map(name=>{const isClass=/^\d{3}班$/.test(name);const grade=isClass?name[0]:'';const groups=grade==='2'?{g1:14,g2:14,g3:8}:null;return{id:`r${++n}`,building:b.id,floor,name,className:isClass?name:'',students:classStudents[name]||0,desks:isClass?(grade==='2'?38:36):0,status:'normal',note:'',groups,columns:6}})))}
 const initial=()=>({activeYear:'115',years:{'115':{updated:new Date().toISOString(),rooms:makeRooms()}}});
 let state=load(),selectedBuilding='senior2',selectedFloor='4F',filterStatus='all',query='',seatRoomId=null,editUnlocked=false,lockTimer=null;applyClassStudents();applyConstructionPlan();
 function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||initial()}catch{return initial()}}
