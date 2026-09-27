@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="臺北市立陽明高中英聽考場平面配置與桌椅調度工作台" />
+  <title>英聽考場配置工作台｜陽明高中</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237dd3fc'/%3E%3Cpath d='M15 34a17 17 0 0 1 34 0' fill='none' stroke='%230f766e' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='9' y='31' width='11' height='19' rx='5' fill='%23fb7185'/%3E%3Crect x='44' y='31' width='11' height='19' rx='5' fill='%23fb7185'/%3E%3Cpath d='M21 49c7 5 15 5 22 0' fill='none' stroke='%230f766e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo">🎧</span><div><strong>英聽考場配置工作台</strong><small>臺北市立陽明高中｜第1版</small></div></div>
+    <div class="top-actions">
+      <button id="printBtn" class="button white">🖨️ 列印平面圖</button>
+      <button id="exportBtn" class="button white">📦 匯出資料</button>
+      <label class="button white upload">📥 匯入資料<input id="importInput" type="file" accept="application/json" /></label>
+      <label class="switch"><input id="editToggle" type="checkbox"><span></span><b id="editText">編輯模式已鎖定</b></label>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary" id="summary"></section>
+
+    <section class="tools">
+      <div class="legend">
+        <span><i class="dot main"></i>正式考場</span>
+        <span><i class="dot reserve"></i>備用考場</span>
+        <span><i class="delta shortage">−</i>缺少桌椅</span>
+        <span><i class="delta surplus">＋</i>多出桌椅</span>
+      </div>
+      <div class="filters" role="group" aria-label="考場篩選">
+        <button class="active" data-filter="all">全部</button>
+        <button data-filter="main">正式考場</button>
+        <button data-filter="reserve">備用考場</button>
+        <button data-filter="shortage">需要補桌椅</button>
+        <button data-filter="surplus">有多出桌椅</button>
+      </div>
+    </section>
+
+    <section class="map-card">
+      <div class="map-title"><div><span>↑ 北</span><h1>英聽考場樓層平面配置</h1></div><p>← 左側位置　｜　同樓層依平面圖由左至右排列　｜　右側位置 →</p></div>
+      <div id="buildingMap" class="building-map"></div>
+      <div class="map-foot"><span>← 田徑運動場</span><b>點選教室可查看與編輯桌椅調度、座號</b><span>校門／士東路 →</span></div>
+    </section>
+
+    <section class="movement-card">
+      <div><small>跨教室桌椅紀錄</small><h2>桌椅移動總覽</h2><p>只顯示已登記的移動，來源、目的與數量都能追蹤。</p></div>
+      <div id="movementList" class="movement-list"></div>
+    </section>
+  </main>
+
+  <dialog id="roomDialog">
+    <form id="roomForm" method="dialog">
+      <header class="dialog-head"><div><small id="roomLocation"></small><h2 id="roomTitle"></h2></div><button id="closeRoom" type="button" aria-label="關閉">×</button></header>
+      <div class="dialog-summary" id="dialogSummary"></div>
+      <div class="tabs" role="tablist"><button type="button" class="active" data-tab="desks">桌椅調度</button><button type="button" data-tab="seats">班級座號</button></div>
+
+      <section id="desksTab" class="tab-panel active">
+        <div class="form-grid">
+          <label>班級人數<input id="studentCount" type="number" min="0" max="80"></label>
+          <label>教室目標桌椅<input id="targetDesks" type="number" min="1" max="80" value="36"></label>
+        </div>
+        <div class="section-head"><div><h3>桌椅移動</h3><p>移到其他班時，請務必選擇來源與目的教室。</p></div><button id="addMove" type="button" class="button coral">＋ 新增紀錄</button></div>
+        <div id="roomMoves" class="room-moves"></div>
+        <label class="full">教室備註<textarea id="roomNote" rows="3" placeholder="例如：桌椅暫放走廊靠牆處、待總務處確認…"></textarea></label>
+      </section>
+
+      <section id="seatsTab" class="tab-panel">
+        <div class="seat-note">前方為黑板／講台。考場座位固定1～36，可填入原班級座號或其他辨識文字。</div>
+        <div class="blackboard">黑板／講台</div>
+        <div id="seatGrid" class="seat-grid"></div>
+      </section>
+
+      <footer class="dialog-actions"><button id="resetRoom" type="button" class="button ghost">還原此教室</button><span></span><button id="cancelRoom" type="button" class="button ghost">取消</button><button class="button teal" type="submit">儲存變更</button></footer>
+    </form>
+  </dialog>
+
+  <dialog id="moveDialog" class="small-dialog">
+    <form id="moveForm" method="dialog">
+      <header class="dialog-head"><div><small>桌椅去向紀錄</small><h2>新增移動</h2></div><button id="closeMove" type="button">×</button></header>
+      <label>處理方式<select id="moveType"><option value="classroom">移至其他教室</option><option value="outside">放置教室外</option></select></label>
+      <label>來源教室<select id="moveFrom"></select></label>
+      <label id="moveToWrap">目的教室<select id="moveTo"></select></label>
+      <label>移動張數<input id="moveCount" type="number" min="1" max="50" value="1" required></label>
+      <label>備註<input id="moveNote" placeholder="例如：同樓層向右搬運"></label>
+      <footer class="dialog-actions"><span></span><span></span><button id="cancelMove" type="button" class="button ghost">取消</button><button class="button coral" type="submit">加入紀錄</button></footer>
+    </form>
+  </dialog>
+
+  <dialog id="passwordDialog" class="small-dialog password-dialog">
+    <form id="passwordForm" method="dialog"><div class="lock-icon">🔐</div><h2>開啟編輯模式</h2><p>輸入管理密碼後才可修改資料。</p><label>管理密碼<input id="passwordInput" type="password" autocomplete="current-password" required></label><p id="passwordError" class="error"></p><footer class="dialog-actions"><span></span><span></span><button id="cancelPassword" type="button" class="button ghost">取消</button><button class="button teal" type="submit">解鎖</button></footer></form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
