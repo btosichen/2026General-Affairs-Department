@@ -1,14 +1,18 @@
 const STORAGE_KEY='ymsh-listening-exam-v1';
 const EDIT_PASSWORD_HASH='5723959ba4cced33029abb64cb213b70404d63b2f9e741be83d0be5385cb1c2c';
 const roomSeed=[
+ {grade:'國七',name:'701班',building:'立志樓',floor:'4F',students:22,type:'support'},
  {grade:'國七',name:'702班',building:'立志樓',floor:'4F',students:29,type:'main'},
  {grade:'國七',name:'703班',building:'立志樓',floor:'4F',students:30,type:'main'},
  {grade:'國七',name:'704班',building:'立志樓',floor:'4F',students:29,type:'main'},
  {grade:'國七',name:'705班',building:'立志樓',floor:'4F',students:30,type:'main'},
+ {grade:'國七',name:'706班',building:'立志樓',floor:'4F',students:31,type:'support'},
+ {grade:'國八',name:'801班',building:'立志樓',floor:'3F',students:21,type:'support'},
  {grade:'國八',name:'802班',building:'立志樓',floor:'3F',students:30,type:'main'},
  {grade:'國八',name:'803班',building:'立志樓',floor:'3F',students:30,type:'main'},
  {grade:'國八',name:'804班',building:'立志樓',floor:'3F',students:32,type:'main'},
  {grade:'國八',name:'805班',building:'立志樓',floor:'3F',students:32,type:'main'},
+ {grade:'國八',name:'806班',building:'立志樓',floor:'3F',students:33,type:'support'},
  {grade:'高一',name:'101班',building:'立志樓',floor:'2F',students:34,type:'main'},
  {grade:'高一',name:'102班',building:'立志樓',floor:'2F',students:37,type:'main'},
  {grade:'高一',name:'103班',building:'立志樓',floor:'2F',students:36,type:'main'},
@@ -36,7 +40,7 @@ const roomSeed=[
  {grade:'高二',name:'212班',building:'向陽樓',floor:'2F',students:33,type:'reserve'}
 ];
 const floorPlan={
- '立志樓':{'4F':['705班','704班','703班','702班','110班','111班','112班','113班'],'3F':['805班','804班','803班','802班','105班','107班','108班','109班'],'2F':['101班','102班','103班','104班'],'1F':['106班']},
+ '立志樓':{'4F':['706班','705班','704班','703班','702班','701班','110班','111班','112班','113班'],'3F':['806班','805班','804班','803班','802班','801班','105班','107班','108班','109班'],'2F':['101班','102班','103班','104班'],'1F':['106班']},
  '向陽樓':{'4F':['201班','202班','203班','204班','206班'],'3F':['207班','208班','209班','210班','211班'],'2F':['205班','212班']}
 };
 const seededRoom=r=>({...r,target:r.type==='support'?0:36,note:r.type==='support'?'桌椅支援教室，可提供其他英聽考場調度。':'',seats:Array(36).fill('')});
