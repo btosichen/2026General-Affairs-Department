@@ -26,6 +26,7 @@
       <div class="legend">
         <span><i class="dot main"></i>正式考場</span>
         <span><i class="dot reserve"></i>備用考場</span>
+        <span><i class="dot support"></i>桌椅支援教室</span>
         <span><i class="delta shortage">−</i>缺少桌椅</span>
         <span><i class="delta surplus">＋</i>多出桌椅</span>
       </div>
@@ -33,6 +34,7 @@
         <button class="active" data-filter="all">全部</button>
         <button data-filter="main">正式考場</button>
         <button data-filter="reserve">備用考場</button>
+        <button data-filter="support">桌椅支援教室</button>
         <button data-filter="shortage">需要補桌椅</button>
         <button data-filter="surplus">有多出桌椅</button>
       </div>
@@ -59,7 +61,7 @@
       <section id="desksTab" class="tab-panel active">
         <div class="form-grid">
           <label>班級人數<input id="studentCount" type="number" min="0" max="80"></label>
-          <label>教室目標桌椅<input id="targetDesks" type="number" min="1" max="80" value="36"></label>
+          <label><span id="targetDesksLabel">教室目標桌椅</span><input id="targetDesks" type="number" min="1" max="80" value="36"></label>
         </div>
         <div class="section-head"><div><h3>桌椅移動</h3><p>移到其他班時，請務必選擇來源與目的教室。</p></div><button id="addMove" type="button" class="button coral">＋ 新增紀錄</button></div>
         <div id="roomMoves" class="room-moves"></div>
