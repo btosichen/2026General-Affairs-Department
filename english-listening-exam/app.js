@@ -43,10 +43,35 @@ const floorPlan={
  '立志樓':{'4F':['706班','705班','704班','703班','702班','701班','110班','111班','112班','113班'],'3F':['806班','805班','804班','803班','802班','801班','105班','107班','108班','109班'],'2F':['101班','102班','103班','104班'],'1F':['106班']},
  '向陽樓':{'4F':['201班','202班','203班','204班','206班'],'3F':['207班','208班','209班','210班','211班'],'2F':['205班','212班']}
 };
-const seededRoom=r=>({...r,target:r.type==='support'?0:36,note:r.type==='support'?'桌椅支援教室，可提供其他英聽考場調度。':'',seats:Array(36).fill('')});
-const initial=()=>({rooms:roomSeed.map(seededRoom),moves:[],updated:new Date().toISOString()});
+const seatSupportPlan={
+ '702班':[['701班',7]],'703班':[['701班',6]],'704班':[['706班',7]],'705班':[['706班',6]],
+ '802班':[['801班',6]],'803班':[['801班',6]],'804班':[['806班',4]],'805班':[['806班',4]],
+ '101班':[['102班',1],['106班',1]],'108班':[['107班',1],['109班',1]],'112班':[['110班',1],['113班',1]],
+ '201班':[['202班',5],['203班',3]],'204班':[['203班',2],['206班',12]],
+ '209班':[['208班',2]],'210班':[['208班',2]],'211班':[['208班',2]],'212班':[['205班',3]]
+};
+const moveSeed=[
+ ['706班','705班',6],['706班','704班',7],['701班','703班',6],['701班','702班',7],
+ ['801班','802班',6],['801班','803班',6],['806班','804班',4],['806班','805班',4],
+ ['102班','101班',1],['106班','101班',1],['107班','108班',1],['109班','108班',1],['110班','112班',1],['113班','112班',1],
+ ['202班','201班',5],['203班','201班',3],['203班','204班',2],['206班','204班',12],
+ ['208班','209班',2],['208班','210班',2],['208班','211班',2],['205班','212班',3]
+].map(([from,to,count])=>({type:'classroom',from,to,count,note:'同樓層或最近班級優先'})).concat([
+ {type:'outside',from:'207班',to:'',count:8,note:'貼班級標籤，移至教室外右側走廊整齊排放'},
+ {type:'outside',from:'208班',to:'',count:2,note:'貼班級標籤，移至教室外右側走廊整齊排放'}
+]);
+function defaultSeats(r){
+ if(r.type==='support')return Array(36).fill('');
+ const need=Math.max(0,36-r.students),sources=[];
+ (seatSupportPlan[r.name]||[]).forEach(([name,count])=>{for(let i=0;i<count;i++)sources.push(name)});
+ const seats=Array(36).fill(r.name);let sourceIndex=0;
+ for(let row=0;row<6;row++)for(let col=0;col<6;col++)if(((5-col)*6+row)<need)seats[row*6+col]=sources[sourceIndex++]||'支援待確認';
+ return seats;
+}
+const seededRoom=r=>({...r,target:r.type==='support'?0:36,note:r.type==='support'?'桌椅支援教室，可提供其他英聽考場調度。':'',seats:defaultSeats(r)});
+const initial=()=>({rooms:roomSeed.map(seededRoom),moves:moveSeed.map(m=>({...m})),updated:new Date().toISOString()});
 let state=load(),filter='all',activeRoom=null,editing=false,pendingMoveRoom=null;
-function normalize(saved){if(!saved?.rooms)return initial();roomSeed.forEach(seed=>{if(!saved.rooms.some(r=>r.name===seed.name))saved.rooms.push(seededRoom(seed))});saved.moves=Array.isArray(saved.moves)?saved.moves:[];return saved}
+function normalize(saved){if(!saved?.rooms)return initial();roomSeed.forEach(seed=>{const room=saved.rooms.find(r=>r.name===seed.name);if(!room)saved.rooms.push(seededRoom(seed));else if(!Array.isArray(room.seats)||room.seats.every(v=>!v))room.seats=defaultSeats(seed)});saved.moves=Array.isArray(saved.moves)&&saved.moves.length?saved.moves:moveSeed.map(m=>({...m}));return saved}
 function load(){try{return normalize(JSON.parse(localStorage.getItem(STORAGE_KEY)))}catch{return initial()}}
 function persist(message='已儲存'){state.updated=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));render();toast(message)}
 const byName=n=>state.rooms.find(r=>r.name===n);
@@ -62,7 +87,7 @@ function renderMoves(){if(!state.moves.length){movementList.innerHTML='<div clas
 function openRoom(name){activeRoom=byName(name);const kind=activeRoom.type==='reserve'?'備用考場':activeRoom.type==='support'?'桌椅支援教室':'正式考場',support=activeRoom.type==='support';roomTitle.textContent=`${name}｜${kind}`;roomLocation.textContent=`${activeRoom.building} · ${activeRoom.floor} · ${activeRoom.grade}`;studentCount.value=activeRoom.students;targetDesks.value=activeRoom.target;targetDesks.min=support?0:1;targetDesksLabel.textContent=support?'教室需保留桌椅':'教室目標桌椅';roomNote.value=activeRoom.note||'';setEditable();renderDialogSummary();renderRoomMoves();renderSeats();switchTab('desks');roomDialog.showModal()}
 function renderDialogSummary(){const r=activeRoom,delta=originalDelta(r),support=r.type==='support';dialogSummary.innerHTML=(support?[['班級人數',`${r.students}人`],['現有桌椅',`${r.students}套`],['保留桌椅',`${r.target}套`],['可供調度',`${Math.max(0,finalCount(r)-r.target)}套`]]:[['班級人數',`${r.students}人`],['預設桌椅',`${r.target}套`],['原始差額',delta<0?`缺${-delta}套`:delta>0?`多${delta}套`:'剛好'],['調度後',`${finalCount(r)}套`]]).map(x=>`<span>${x[0]}<b>${x[1]}</b></span>`).join('')}
 function renderRoomMoves(){const list=state.moves.map((m,i)=>({...m,i})).filter(m=>m.from===activeRoom.name||m.to===activeRoom.name);roomMoves.innerHTML=list.length?list.map(m=>`<div class="mini-move ${m.type==='outside'?'outside':''}"><strong>${m.from}</strong><i>→</i><strong>${m.type==='outside'?'教室外':m.to}</strong><b>${m.count}張</b><button type="button" class="delete-move" data-mini-delete="${m.i}" ${editing?'':'disabled'}>×</button></div>`).join(''):'<div class="movement-empty">這間教室尚無移動紀錄</div>';roomMoves.querySelectorAll('[data-mini-delete]').forEach(b=>b.onclick=()=>{state.moves.splice(+b.dataset.miniDelete,1);renderRoomMoves();renderDialogSummary()})}
-function renderSeats(){activeRoom.seats=Array.from({length:36},(_,i)=>activeRoom.seats?.[i]||'');seatGrid.innerHTML=activeRoom.seats.map((v,i)=>`<label class="seat"><b>座位 ${i+1}</b><input data-seat="${i}" value="${escapeHTML(v)}" placeholder="班級座號" ${editing?'':'disabled'}></label>`).join('')}
+function renderSeats(){activeRoom.seats=Array.from({length:36},(_,i)=>activeRoom.seats?.[i]||'');if(activeRoom.type==='support'){seatGrid.innerHTML='<div class="support-seat-message">📦 本教室為桌椅支援教室，不配置英聽 6×6 考場座位。</div>';return}seatGrid.innerHTML=activeRoom.seats.map((v,i)=>{const own=v===activeRoom.name,borrowed=v&&!own;return`<label class="seat ${own?'own':borrowed?'borrowed':''}"><b>🪑 ${i+1}</b><input data-seat="${i}" value="${escapeHTML(v)}" placeholder="班級名稱" ${editing?'':'disabled'}></label>`}).join('')}
 function setEditable(){[studentCount,targetDesks,roomNote,addMove,resetRoom].forEach(el=>el.disabled=!editing);editText.textContent=editing?'編輯模式已解鎖':'編輯模式已鎖定'}
 function switchTab(name){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));desksTab.classList.toggle('active',name==='desks');seatsTab.classList.toggle('active',name==='seats')}
 function requestUnlock(){passwordInput.value='';passwordError.textContent='';passwordDialog.showModal();setTimeout(()=>passwordInput.focus(),0)}

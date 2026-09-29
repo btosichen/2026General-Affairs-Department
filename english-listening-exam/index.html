@@ -6,11 +6,11 @@
   <meta name="description" content="臺北市立陽明高中英聽考場平面配置與桌椅調度工作台" />
   <title>英聽考場配置工作台｜陽明高中</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237dd3fc'/%3E%3Cpath d='M15 34a17 17 0 0 1 34 0' fill='none' stroke='%230f766e' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='9' y='31' width='11' height='19' rx='5' fill='%23fb7185'/%3E%3Crect x='44' y='31' width='11' height='19' rx='5' fill='%23fb7185'/%3E%3Cpath d='M21 49c7 5 15 5 22 0' fill='none' stroke='%230f766e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="logo">🎧</span><div><strong>英聽考場配置工作台</strong><small>臺北市立陽明高中｜第1版</small></div></div>
+    <div class="brand"><span class="logo">🎧</span><div><strong>英聽考場配置工作台</strong><small>臺北市立陽明高中｜6×6 座位配置版</small></div></div>
     <div class="top-actions">
       <button id="printBtn" class="button white">🖨️ 列印平面圖</button>
       <button id="exportBtn" class="button white">📦 匯出資料</button>
@@ -56,7 +56,7 @@
     <form id="roomForm" method="dialog">
       <header class="dialog-head"><div><small id="roomLocation"></small><h2 id="roomTitle"></h2></div><button id="closeRoom" type="button" aria-label="關閉">×</button></header>
       <div class="dialog-summary" id="dialogSummary"></div>
-      <div class="tabs" role="tablist"><button type="button" class="active" data-tab="desks">桌椅調度</button><button type="button" data-tab="seats">班級座號</button></div>
+      <div class="tabs" role="tablist"><button type="button" class="active" data-tab="desks">🪑 桌椅調度</button><button type="button" data-tab="seats">🧩 6×6 座位表</button></div>
 
       <section id="desksTab" class="tab-panel active">
         <div class="form-grid">
@@ -69,9 +69,14 @@
       </section>
 
       <section id="seatsTab" class="tab-panel">
-        <div class="seat-note">前方為黑板／講台。考場座位固定1～36，可填入原班級座號或其他辨識文字。</div>
-        <div class="blackboard">黑板／講台</div>
-        <div id="seatGrid" class="seat-grid"></div>
+        <div class="seat-note">✨ 面向黑板時：左側為教室內側，右側為走廊。藍色是原班桌椅，橘色是鄰近班級支援桌椅。</div>
+        <div class="seat-layout">
+          <div class="blackboard">🎧 黑板／講台</div>
+          <div class="seat-direction inside">🧱<span>教室內側</span></div>
+          <div id="seatGrid" class="seat-grid"></div>
+          <div class="seat-direction corridor">🚪<span>走廊側</span></div>
+        </div>
+        <div class="seat-legend"><span class="own">🟦 原班桌椅</span><span class="borrowed">🟧 支援班桌椅</span><span>🪑 共 36 席</span></div>
       </section>
 
       <footer class="dialog-actions"><button id="resetRoom" type="button" class="button ghost">還原此教室</button><span></span><button id="cancelRoom" type="button" class="button ghost">取消</button><button class="button teal" type="submit">儲存變更</button></footer>
@@ -95,6 +100,6 @@
   </dialog>
 
   <div id="toast" class="toast" role="status"></div>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
