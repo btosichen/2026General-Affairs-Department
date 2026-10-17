@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臺北市立陽明高中 - 邁向碳中和 115-118年中程計畫網頁</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Zen Maru Gothic for Japanese Kawaii feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'kawaii-green': '#A8E6CF',
+                        'kawaii-dark-green': '#3B7A57',
+                        'kawaii-mint': '#E8F5E9',
+                        'kawaii-pink': '#FFD3B6',
+                        'kawaii-rose': '#FFAAA5',
+                        'kawaii-yellow': '#DCEDC1',
+                        'kawaii-soft-bg': '#FAF8F5',
+                        'kawaii-card': '#FFFFFF',
+                        'kawaii-text': '#4A5568',
+                    },
+                    fontFamily: {
+                        kawaii: ['"Zen Maru Gothic"', '"Noto Sans TC"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'kawaii': '0 8px 20px -4px rgba(168, 230, 207, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'kawaii-hover': '0 12px 25px -4px rgba(168, 230, 207, 0.6), 0 6px 10px -2px rgba(0, 0, 0, 0.08)',
+                        'cute-button': '0 4px 0px 0px #3B7A57',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+            background-color: #FAF8F5;
+            background-image: radial-gradient(#E8F5E9 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            color: #374151;
+        }
+        .kawaii-border {
+            border: 3px solid #C8E6C9;
+        }
+        .bounce-gentle {
+            animation: bounce 3s infinite ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .wiggle {
+            animation: wiggle 2s infinite ease-in-out;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .tab-btn.active {
+            background-color: #3B7A57 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 12px rgba(59, 122, 87, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F1F1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #A8E6CF;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3B7A57;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <header class="bg-white border-b-4 border-emerald-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <!-- Kawaii Leaf Mascot SVG -->
+                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center p-2 border-2 border-emerald-400 bounce-gentle shadow-inner">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <circle cx="50" cy="55" r="35" fill="#A8E6CF" />
+                        <!-- Eyes -->
+                        <circle cx="38" cy="50" r="4" fill="#2D3748" />
+                        <circle cx="62" cy="50" r="4" fill="#2D3748" />
+                        <circle cx="40" cy="48" r="1.5" fill="#FFFFFF" />
+                        <circle cx="64" cy="48" r="1.5" fill="#FFFFFF" />
+                        <!-- Cheeks -->
+                        <ellipse cx="30" cy="56" rx="5" ry="3" fill="#FFAAA5" opacity="0.8" />
+                        <ellipse cx="70" cy="56" rx="5" ry="3" fill="#FFAAA5" opacity="0.8" />
+                        <!-- Smile -->
+                        <path d="M 43 60 Q 50 67 57 60" stroke="#2D3748" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <!-- Top Leaf Sprouts -->
+                        <path d="M 50 20 Q 35 10 48 30" fill="#3B7A57" />
+                        <path d="M 50 20 Q 65 10 52 30" fill="#4CAF50" />
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">行政同仁專用導覽手冊</span>
+                    <h1 class="text-xl sm:text-2xl font-black text-gray-800 tracking-wide flex items-center gap-2">
+                        臺北市立陽明高中 
+                        <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 text-lg sm:text-xl">邁向碳中和中程計畫</span>
+                    </h1>
+                </div>
+            </div>
+            
+            <div class="mt-2 sm:mt-0 flex items-center space-x-2">
+                <span class="text-xs bg-yellow-100 text-yellow-800 font-bold px-3 py-1.5 rounded-full border border-yellow-300 flex items-center gap-1">
+                    <i class="fa-solid font-bold fa-leaf text-emerald-600"></i> 115-118學年度 (2026-2029)
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 overflow-x-auto pb-2">
+            <nav class="flex space-x-2 sm:space-x-4 min-w-max">
+                <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active px-4 py-2 rounded-2xl font-bold text-sm text-gray-600 hover:bg-emerald-100 transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-compass"></i> 1. 計畫緣起與目標
+                </button>
+                <button onclick="switchTab('baseline')" id="tab-baseline" class="tab-btn px-4 py-2 rounded-2xl font-bold text-sm text-gray-600 hover:bg-emerald-100 transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie"></i> 2. 114年碳盤查診斷
+                </button>
+                <button onclick="switchTab('roadmap')" id="tab-roadmap" class="tab-btn px-4 py-2 rounded-2xl font-bold text-sm text-gray-600 hover:bg-emerald-100 transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot"></i> 3. 四年藍圖互動地圖
+                </button>
+                <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-4 py-2 rounded-2xl font-bold text-sm text-gray-600 hover:bg-emerald-100 transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-seedling"></i> 4. 行政同仁減碳神隊友
+                </button>
+                <button onclick="switchTab('outcomes')" id="tab-outcomes" class="tab-btn px-4 py-2 rounded-2xl font-bold text-sm text-gray-600 hover:bg-emerald-100 transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-bullseye"></i> 5. 預期成效與願景
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: OVERVIEW & GOALS                    -->
+        <!-- ========================================== -->
+        <section id="sec-overview" class="tab-content space-y-6">
+            <!-- Hero Kawaii Welcome Card -->
+            <div class="bg-gradient-to-r from-emerald-100 via-teal-50 to-green-100 rounded-3xl p-6 sm:p-8 kawaii-border shadow-kawaii relative overflow-hidden">
+                <div class="absolute -right-8 -bottom-8 opacity-20 pointer-events-none">
+                    <i class="fa-solid fa-tree text-9xl text-emerald-800"></i>
+                </div>
+                <div class="max-w-3xl relative z-10">
+                    <div class="inline-block bg-emerald-600 text-white font-bold text-xs px-3 py-1 rounded-full mb-3 shadow-sm">
+                        🌸 攜手打造綠色永續陽明校園 🌸
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-gray-800 mb-3">
+                        行政同仁全體總動員！一起邁向碳中和淨零校園 ✨
+                    </h2>
+                    <p class="text-gray-700 leading-relaxed mb-4 text-base sm:text-lg">
+                        為響應北市淨零排放政策，陽明高中推動115至118年中程碳中和計畫。透過「簡易碳盤查」、「能源轉型」、「無紙化行政」與「碳匯營造」，邀全校教職員工生與家長共同參與！
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="bg-white/90 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold border border-emerald-200 shadow-sm">
+                            <i class="fa-solid fa-users text-emerald-500"></i> 參與對象：全校教職員工生及家長
+                        </span>
+                        <span class="bg-white/90 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold border border-emerald-200 shadow-sm">
+                            <i class="fa-solid fa-building-columns text-emerald-500"></i> 承辦單位：陽明高中總務處/各處室
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objectives 4 Pillars Grid -->
+            <div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <span class="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm"><i class="fa-solid fa-star"></i></span>
+                    四大計畫核心目標 (Objectives)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Goal 1 -->
+                    <div class="bg-white rounded-2xl p-5 border-2 border-emerald-100 hover:border-emerald-400 transition-all shadow-sm hover:shadow-kawaii group">
+                        <div class="w-12 h-12 bg-green-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">目標 01</span>
+                        <h4 class="font-bold text-gray-800 text-lg mt-1 mb-2">增進碳盤查認知</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">全校教職員工深入瞭解淨零排放趨勢下，校園簡易碳盤查的目的與極致重要性。</p>
+                    </div>
+
+                    <!-- Goal 2 -->
+                    <div class="bg-white rounded-2xl p-5 border-2 border-emerald-100 hover:border-emerald-400 transition-all shadow-sm hover:shadow-kawaii group">
+                        <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-book-open-reader"></i>
+                        </div>
+                        <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-md">目標 02</span>
+                        <h4 class="font-bold text-gray-800 text-lg mt-1 mb-2">掌握排放源與數據</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">熟悉校園碳排放源及教育部「校園簡易碳盤查手冊」操作，精準掌握學校總碳排量。</p>
+                    </div>
+
+                    <!-- Goal 3 -->
+                    <div class="bg-white rounded-2xl p-5 border-2 border-emerald-100 hover:border-emerald-400 transition-all shadow-sm hover:shadow-kawaii group">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-handshake-angle"></i>
+                        </div>
+                        <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">目標 03</span>
+                        <h4 class="font-bold text-gray-800 text-lg mt-1 mb-2">凝聚淨零減碳共識</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">透過全校教職員工生共同參與，提升學校團隊之淨零排放與日常減碳行動概念。</p>
+                    </div>
+
+                    <!-- Goal 4 -->
+                    <div class="bg-white rounded-2xl p-5 border-2 border-emerald-100 hover:border-emerald-400 transition-all shadow-sm hover:shadow-kawaii group">
+                        <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">目標 04</span>
+                        <h4 class="font-bold text-gray-800 text-lg mt-1 mb-2">規劃負碳與融入教學</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">規劃增加負碳排與減碳路徑，將碳盤查融入校本課程、教學活動與永續環境管理。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Legal & Framework Basis -->
+            <div class="bg-white rounded-3xl p-6 border-2 border-dashed border-emerald-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced text-emerald-500"></i> 計畫推動依據 (Policy Framework)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+                    <div class="flex items-center gap-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> 《臺北市淨零排放管理自治條例》
+                    </div>
+                    <div class="flex items-center gap-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> 臺北市政府教育局淨零排放實施計畫
+                    </div>
+                    <div class="flex items-center gap-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> 臺北市校園碳盤查增能教育及淨零新生活運動實施計畫
+                    </div>
+                    <div class="flex items-center gap-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> 陽明高中111-115年中長程教育發展計畫
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: 114 BASELINE CARBON AUDIT           -->
+        <!-- ========================================== -->
+        <section id="sec-baseline" class="tab-content space-y-6 hidden">
+            <div class="bg-white rounded-3xl p-6 border-2 border-emerald-100 shadow-sm">
+                <div class="flex flex-wrap justify-between items-center mb-6">
+                    <div>
+                        <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full">基準點診斷報告</span>
+                        <h2 class="text-2xl font-bold text-gray-800 mt-1">114年 校園碳盤查結果分析</h2>
+                        <p class="text-sm text-gray-500 mt-1">了解陽明高中的碳排熱點，才能對症下藥！</p>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center mt-3 sm:mt-0">
+                        <div class="text-xs text-emerald-700 font-bold">校園年度總排放量</div>
+                        <div class="text-2xl sm:text-3xl font-black text-emerald-700">471.43 <span class="text-xs font-normal">公噸 CO₂e/年</span></div>
+                    </div>
+                </div>
+
+                <!-- Main Grid: Chart + Details Table -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Donut Chart -->
+                    <div class="lg:col-span-5 bg-emerald-50/40 rounded-2xl p-4 flex flex-col items-center justify-center border border-emerald-100">
+                        <h3 class="font-bold text-gray-700 mb-2 text-center text-sm">排放源比例結構 (tCO₂e/年)</h3>
+                        <div class="w-full max-w-[280px] h-[260px] relative">
+                            <canvas id="carbonChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-xs text-center text-gray-500 bg-white px-3 py-1.5 rounded-full border border-gray-200">
+                            💡 <strong>外購電力 (556.14)</strong> 佔據絕大多數排放量！
+                        </div>
+                    </div>
+
+                    <!-- Detailed Data Cards -->
+                    <div class="lg:col-span-7 space-y-3">
+                        <!-- Electricity -->
+                        <div class="p-4 bg-amber-50/80 rounded-2xl border border-amber-200 hover:shadow-sm transition-all">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-amber-400 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-sm">
+                                        ⚡
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">外購電力 (最大碳排源)</h4>
+                                        <p class="text-xs text-amber-800">間接排放源 • 教室/辦公室用電</p>
+                                    </div>
+                                </div>
+                                <span class="text-lg font-black text-amber-700">556.14 <span class="text-xs">tCO₂e</span></span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-700 bg-white/80 p-2 rounded-xl">
+                                <strong>精進重點：</strong> 隨手關燈關風扇、老舊燈具汰換為節能LED/感應燈、設置定時器分區照明、高耗能設備定期維護與適時汰換。
+                            </div>
+                        </div>
+
+                        <!-- Swimming Pool Heat Pump Highlight -->
+                        <div class="p-4 bg-emerald-50/80 rounded-2xl border border-emerald-200 hover:shadow-sm transition-all">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-sm">
+                                        🏊
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">游泳池加熱改善（重大成果）</h4>
+                                        <p class="text-xs text-emerald-800">直接排放源改善</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold bg-emerald-200 text-emerald-800 px-2 py-1 rounded-lg">114年8月已改善</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-700 bg-white/80 p-2 rounded-xl">
+                                <strong>精進重點：</strong> 114年柴油加熱已於8月過後<strong>改用高效熱泵系統</strong>，顯著降低直接燃料燃燒排放！固定式燃氣僅剩液化石油氣 0.1053 tCO₂e/年。
+                            </div>
+                        </div>
+
+                        <!-- Water & Commute Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3 bg-blue-50/80 rounded-2xl border border-blue-200">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold text-xs text-gray-800">💧 外購水力</span>
+                                    <span class="font-bold text-sm text-blue-700">5.35 tCO₂e</span>
+                                </div>
+                                <p class="text-xs text-gray-600">自來水營業處 (臺北2.17 + 臺灣3.19)。宣導節水、巡檢防漏、雨水貯留灌溉生態池。</p>
+                            </div>
+
+                            <div class="p-3 bg-purple-50/80 rounded-2xl border border-purple-200">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold text-xs text-gray-800">🚲 員工通勤</span>
+                                    <span class="font-bold text-sm text-purple-700">0.13 tCO₂e</span>
+                                </div>
+                                <p class="text-xs text-gray-600">鼓勵教職員工生步行上班上學或搭乘大眾運輸工具。</p>
+                            </div>
+                        </div>
+
+                        <!-- Carbon Sink -->
+                        <div class="p-4 bg-green-100/70 rounded-2xl border border-green-300">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl">🌳</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm">負碳排放源 (樹木碳匯)</h4>
+                                        <p class="text-xs text-green-800">校園綠地固碳效益</p>
+                                    </div>
+                                </div>
+                                <span class="text-lg font-black text-emerald-700">-1.71 <span class="text-xs">tCO₂e/年</span></span>
+                            </div>
+                            <p class="text-xs text-gray-700 mt-2">
+                                活動中心已設置太陽能板，並持續評估擴增裝設；校園優勢綠地提供負碳吸收。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: 4-YEAR INTERACTIVE ROADMAP MATRIX    -->
+        <!-- ========================================== -->
+        <section id="sec-roadmap" class="tab-content space-y-6 hidden">
+            <!-- Header & Filter Toolbar -->
+            <div class="bg-white rounded-3xl p-6 border-2 border-emerald-100 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full">五年中程探索藍圖</span>
+                        <h2 class="text-2xl font-bold text-gray-800 mt-1">115 至 118 年預定推動項目矩陣</h2>
+                        <p class="text-sm text-gray-500">點選下方年份或推動面向，快速切換與預覽行動方案！</p>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative w-full md:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" id="roadmapSearch" oninput="filterRoadmap()" placeholder="搜尋關鍵字 (如: 太陽能, 飲水機)" 
+                               class="w-full pl-9 pr-4 py-2 rounded-2xl border-2 border-emerald-100 focus:border-emerald-400 focus:outline-none text-sm">
+                    </div>
+                </div>
+
+                <!-- Year Filter Tabs -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                        <span class="text-xs font-bold text-gray-500 whitespace-nowrap"><i class="fa-regular fa-calendar"></i> 年份篩選：</span>
+                        <button onclick="setYearFilter('all')" id="yf-all" class="year-filter-btn active px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm">全部年份 (115-118)</button>
+                        <button onclick="setYearFilter('115')" id="yf-115" class="year-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-600 hover:bg-emerald-100">115年 (啟動期)</button>
+                        <button onclick="setYearFilter('116')" id="yf-116" class="year-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-600 hover:bg-emerald-100">116年 (擴展期)</button>
+                        <button onclick="setYearFilter('117')" id="yf-117" class="year-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-600 hover:bg-emerald-100">117年 (深耕期)</button>
+                        <button onclick="setYearFilter('118')" id="yf-118" class="year-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-600 hover:bg-emerald-100">118年 (永續期)</button>
+                    </div>
+
+                    <!-- Pillar Filter Chips -->
+                    <div class="flex items-center gap-1.5 flex-wrap pt-2 border-t border-gray-100">
+                        <span class="text-xs font-bold text-gray-500 mr-1"><i class="fa-solid fa-shapes"></i> 九大面向：</span>
+                        <button onclick="setPillarFilter('all')" class="pillar-btn active bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-lg font-bold border border-emerald-300">全部面向</button>
+                        <button onclick="setPillarFilter('綠電')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">☀️ 創設綠電</button>
+                        <button onclick="setPillarFilter('節能')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">💡 節能減排</button>
+                        <button onclick="setPillarFilter('效率')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">⚙️ 效率提升</button>
+                        <button onclick="setPillarFilter('資源')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">♻️ 資源循環</button>
+                        <button onclick="setPillarFilter('生態')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">🌿 校園生態</button>
+                        <button onclick="setPillarFilter('碳匯')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">🌳 增加碳匯</button>
+                        <button onclick="setPillarFilter('課程')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">📚 課程教學</button>
+                        <button onclick="setPillarFilter('活動')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">🎉 學校活動</button>
+                        <button onclick="setPillarFilter('創新')" class="pillar-btn bg-white text-gray-600 hover:bg-emerald-50 text-xs px-2.5 py-1 rounded-lg border border-gray-200">🚀 其他創新</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roadmap Container Grid -->
+            <div id="roadmapGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Dynamically Rendered Cards go here -->
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: ADMIN INTERACTIVE SIMULATOR & QUIZ  -->
+        <!-- ========================================== -->
+        <section id="sec-simulator" class="tab-content space-y-6 hidden">
+            <!-- Simulator Hero -->
+            <div class="bg-gradient-to-r from-yellow-100 via-amber-50 to-green-100 rounded-3xl p-6 border-2 border-yellow-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <span class="bg-amber-200 text-amber-800 font-bold text-xs px-3 py-1 rounded-full">行政同仁專屬專區</span>
+                        <h2 class="text-2xl font-black text-gray-800 mt-1">我是陽明減碳神隊友！✨</h2>
+                        <p class="text-sm text-gray-700 mt-1">勾選您在辦公室落實的日常減碳行動，試算每年能為陽明高中省下多少碳排放！</p>
+                    </div>
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-md border-2 border-yellow-300 wiggle">
+                        🏆
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Checklist Interactive Cards -->
+                <div class="lg:col-span-7 bg-white rounded-3xl p-6 border-2 border-emerald-100 shadow-sm space-y-4">
+                    <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-500"></i> 行政同仁每日日常減碳清單
+                    </h3>
+
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-3 p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100 hover:bg-emerald-50 cursor-pointer transition-colors">
+                            <input type="checkbox" onchange="calculateCarbonSavings()" class="calc-check mt-1 w-5 h-5 text-emerald-600 rounded focus:ring-emerald-400" data-save="12">
+                            <div>
+                                <span class="font-bold text-gray-800 text-sm">落實公文電子化與線上會議 (減少用紙)</span>
+                                <p class="text-xs text-gray-500">響應無紙化行政，公文不列印，線上開會減少紙張與移動碳排。</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100 hover:bg-emerald-50 cursor-pointer transition-colors">
+                            <input type="checkbox" onchange="calculateCarbonSavings()" class="calc-check mt-1 w-5 h-5 text-emerald-600 rounded focus:ring-emerald-400" data-save="18">
+                            <div>
+                                <span class="font-bold text-gray-800 text-sm">午休與離開辦公室隨手關閉照明與電腦</span>
+                                <p class="text-xs text-gray-500">設定定時器、善用自然光，關閉老舊高耗能插座與顯示器。</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100 hover:bg-emerald-50 cursor-pointer transition-colors">
+                            <input type="checkbox" onchange="calculateCarbonSavings()" class="calc-check mt-1 w-5 h-5 text-emerald-600 rounded focus:ring-emerald-400" data-save="25">
+                            <div>
+                                <span class="font-bold text-gray-800 text-sm">冷氣溫度設定 26-28°C 搭配排風扇/電風扇</span>
+                                <p class="text-xs text-gray-500">協助巡檢並使用一級能效變頻冷氣，提升空調運轉效率。</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100 hover:bg-emerald-50 cursor-pointer transition-colors">
+                            <input type="checkbox" onchange="calculateCarbonSavings()" class="calc-check mt-1 w-5 h-5 text-emerald-600 rounded focus:ring-emerald-400" data-save="8">
+                            <div>
+                                <span class="font-bold text-gray-800 text-sm">外食選擇「循環容器」與「環境友善店家」</span>
+                                <p class="text-xs text-gray-500">使用植纖餐盒、紙製餐具或自備環保餐具，實踐惜食零廢棄。</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100 hover:bg-emerald-50 cursor-pointer transition-colors">
+                            <input type="checkbox" onchange="calculateCarbonSavings()" class="calc-check mt-1 w-5 h-5 text-emerald-600 rounded focus:ring-emerald-400" data-save="15">
+                            <div>
+                                <span class="font-bold text-gray-800 text-sm">搭乘大眾運輸工具或步行上班</span>
+                                <p class="text-xs text-gray-500">減少私人汽機車油耗，協助校園降低移動式碳排放。</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Carbon Reduction Result & Kawaii Badge -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-emerald-600 text-white rounded-3xl p-6 shadow-kawaii text-center relative overflow-hidden">
+                        <div class="text-xs font-bold bg-emerald-700/80 inline-block px-3 py-1 rounded-full mb-2">我的個人預估年度減碳成就</div>
+                        <div class="text-5xl font-black mb-1" id="savedCarbonVal">0</div>
+                        <div class="text-xs text-emerald-100 mb-4">公斤 CO₂e / 每年</div>
+
+                        <div class="bg-white/10 rounded-2xl p-3 border border-white/20 text-xs text-emerald-50">
+                            🌳 相當於為陽明校園多種植了 <span id="treesEquivalentVal" class="font-bold text-yellow-300 text-sm">0</span> 棵小樹苗的固碳效果！
+                        </div>
+                    </div>
+
+                    <!-- Mini Quiz Challenge Component -->
+                    <div class="bg-white rounded-3xl p-6 border-2 border-amber-200 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-base mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-gamepad text-amber-500"></i> 行政同仁隨堂快問快答 💡
+                        </h3>
+                        
+                        <div id="quizContainer" class="space-y-4">
+                            <p class="text-sm font-bold text-gray-700" id="quizQuestion">
+                                Q1: 陽明高中游泳池加熱系統已於114年8月改用何種設備以大幅降低碳排放？
+                            </p>
+                            <div class="space-y-2" id="quizOptions">
+                                <button onclick="checkAnswer(0)" class="w-full text-left p-2.5 rounded-xl border border-gray-200 hover:bg-amber-50 text-xs font-medium text-gray-700">A. 瓦斯燃油鍋爐</button>
+                                <button onclick="checkAnswer(1)" class="w-full text-left p-2.5 rounded-xl border border-gray-200 hover:bg-amber-50 text-xs font-medium text-gray-700">B. 高效熱泵系統 (Heat Pump)</button>
+                                <button onclick="checkAnswer(2)" class="w-full text-left p-2.5 rounded-xl border border-gray-200 hover:bg-amber-50 text-xs font-medium text-gray-700">C. 柴油發電機加熱</button>
+                            </div>
+                            <div id="quizFeedback" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: EXPECTED OUTCOMES & BUDGET          -->
+        <!-- ========================================== -->
+        <section id="sec-outcomes" class="tab-content space-y-6 hidden">
+            <div class="bg-white rounded-3xl p-6 border-2 border-emerald-100 shadow-sm">
+                <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full">永續願景與效益</span>
+                <h2 class="text-2xl font-bold text-gray-800 mt-1 mb-2">預期效益與目標 (Expected Results)</h2>
+                <p class="text-sm text-gray-500 mb-6">本計畫實施後，預期達成以下四大深度領域之永續效益：</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Outcome 1 -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 flex gap-4">
+                        <div class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex-shrink-0 flex items-center justify-center text-xl shadow-sm">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg mb-1">(一) 深度節能與智慧監控</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                落實游泳池熱泵系統取代柴油，並導入EMS能源管理系統與一級能效空調，透過數據監測精準控管能耗，達成用電量逐年負成長目標。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Outcome 2 -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 flex gap-4">
+                        <div class="w-12 h-12 bg-green-500 text-white rounded-2xl flex-shrink-0 flex items-center justify-center text-xl shadow-sm">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg mb-1">(二) 碳匯盤查與綠化增值</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                建置本校「校園樹木碳匯資料庫」，結合垂直綠化與修剪枝條循環利用，妥善管理校內約 23,000 平方公尺綠地之固碳效益。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Outcome 3 -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 flex gap-4">
+                        <div class="w-12 h-12 bg-blue-500 text-white rounded-2xl flex-shrink-0 flex items-center justify-center text-xl shadow-sm">
+                            <i class="fa-solid fa-recycle"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg mb-1">(三) 資源循環與數位轉型</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                全面推動行政公文無紙化，並結合「循環容器」與「廚餘減量」機制，從源頭降低廢棄物產生，實踐校園零廢棄願景。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Outcome 4 -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 flex gap-4">
+                        <div class="w-12 h-12 bg-purple-500 text-white rounded-2xl flex-shrink-0 flex items-center justify-center text-xl shadow-sm">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg mb-1">(四) 特色課程與數據教學</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                研發陽明高中「樹木碳匯」及「循環經濟」教案，將校園 EMS 能耗數據轉化為教材，提升師生對淨零排放的實務認知與行動力。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Info Box -->
+            <div class="bg-yellow-50/80 rounded-3xl p-6 border-2 border-yellow-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-amber-400 text-white rounded-2xl flex items-center justify-center text-2xl">
+                        💰
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-base">經費來源與支持</h4>
+                        <p class="text-xs text-gray-600">本案所需經費由臺北市政府教育局「臺北市校園碳盤查增能教育及淨零新生活運動實施計畫」及學校相關預算經費支應。</p>
+                    </div>
+                </div>
+                <div class="text-xs bg-white px-4 py-2 rounded-xl font-bold border border-yellow-300 whitespace-nowrap">
+                    陳 校長核可後實施
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-emerald-100 py-6 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500 space-y-1">
+            <p class="font-bold text-emerald-800">臺北市立陽明高級中學 邁向碳中和中程 (115至118年) 計畫</p>
+            <p>共同為地球減碳 ‧ 打造永續綠色校園 🌿</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // 4-Year Matrix Data
+        const roadmapData = [
+            // 115年
+            { year: "115", pillar: "綠電", title: "盤點場域評估增設太陽能板", desc: "評估校內建築屋頂增設太陽能光電板之可行性。", icon: "☀️", bg: "bg-yellow-50", border: "border-yellow-200" },
+            { year: "115", pillar: "節能", title: "游泳池改用熱泵系統", desc: "游泳池改用熱泵取代柴油加熱，大幅降低碳排放量。", icon: "🏊", bg: "bg-emerald-50", border: "border-emerald-200" },
+            { year: "115", pillar: "節能", title: "教室大屏與空調優化", desc: "執行教室大屏汰舊，逐年汰換老舊設備；增設排風機提升空調效率。", icon: "📺", bg: "bg-emerald-50", border: "border-emerald-200" },
+            { year: "115", pillar: "資源", title: "鼓勵使用環保餐具與容器", desc: "鼓勵學生訂購外食選擇環境友善店家、循環容器外送及植纖餐盒。", icon: "🍱", bg: "bg-amber-50", border: "border-amber-200" },
+            { year: "115", pillar: "生態", title: "推動田園體驗與學習", desc: "運用陽明校地廣闊、綠地覆蓋率高優勢，推動田園體驗。", icon: "🌱", bg: "bg-green-50", border: "border-green-200" },
+            { year: "115", pillar: "碳匯", title: "完成樹木碳匯量盤查", desc: "精準盤點並計算校園樹木總固碳量與碳匯數據。", icon: "🌳", bg: "bg-green-50", border: "border-green-200" },
+            { year: "115", pillar: "課程", title: "氣候變遷議題融入校本課程", desc: "將氣候變遷與淨零排放議題融入陽明高中校本特色課程。", icon: "📚", bg: "bg-blue-50", border: "border-blue-200" },
+            { year: "115", pillar: "活動", title: "辦理碳盤查教育與講習", desc: "辦理校園碳盤查增能教育及淨零新生活運動經驗分享會。", icon: "🎉", bg: "bg-purple-50", border: "border-purple-200" },
+            { year: "115", pillar: "創新", title: "辦理淨零英文演講比賽", desc: "透過淨零英文演講比賽，提升學生永續國際視野。", icon: "🗣️", bg: "bg-rose-50", border: "border-rose-200" },
+
+            // 116年
+            { year: "116", pillar: "綠電", title: "綠電知識融入教學", desc: "太陽能系統穩定運作，並將綠電與綠能知識融入課程。", icon: "☀️", bg: "bg-yellow-50", border: "border-yellow-200" },
+            { year: "116", pillar: "節能", title: "行政公文無紙化與感應燈具", desc: "善用數位科技(電子公文/線上會議)減紙；盤點照明增設感應燈/定時器。", icon: "📄", bg: "bg-emerald-50", border: "border-emerald-200" },
+            { year: "116", pillar: "效率", title: "汰換一級能效變頻冷氣", desc: "逐年將老舊空調汰換為一級能效變頻冷氣，並汰換低效率燈具。", icon: "❄️", bg: "bg-cyan-50", border: "border-cyan-200" },
+            { year: "116", pillar: "資源", title: "辦理資源回收分類競賽", desc: "舉辦資源回收分類競賽，落實垃圾源頭減量。", icon: "♻️", bg: "bg-amber-50", border: "border-amber-200" },
+            { year: "116", pillar: "生態", title: "增設綠屋頂與垂直綠化", desc: "設置綠屋頂與垂直綠化設施，降溫並提升校園綠美化。", icon: "🧱", bg: "bg-green-50", border: "border-green-200" },
+            { year: "116", pillar: "碳匯", title: "種植喬木增加碳吸存", desc: "持續種植喬木進行校園綠化，大幅增加校園碳吸存量。", icon: "🌲", bg: "bg-green-50", border: "border-green-200" },
+            { year: "116", pillar: "課程", title: "開發樹木碳匯教育模組", desc: "發展適合高中職適用之校園樹木碳匯教育課程模組。", icon: "📖", bg: "bg-blue-50", border: "border-blue-200" },
+            { year: "116", pillar: "活動", title: "舊物再利用與循環市集", desc: "舉辦二手物品交換、舊物再利用等循環環保教育活動。", icon: "🛍️", bg: "bg-purple-50", border: "border-purple-200" },
+            { year: "116", pillar: "創新", title: "無國界線上國際交流", desc: "善用數位環境優勢進行線上交流，減少國際移動碳排放。", icon: "🌐", bg: "bg-rose-50", border: "border-rose-200" },
+
+            // 117年
+            { year: "117", pillar: "綠電", title: "開發再生能源實踐教案", desc: "運用校園綠能場域開發再生能源實踐教案。", icon: "⚡", bg: "bg-yellow-50", border: "border-yellow-200" },
+            { year: "117", pillar: "節能", title: "EMS能源與雨水回收調校", desc: "依據EMS能源管理系統逐步調校用電；善用雨水與推動省水措施。", icon: "💧", bg: "bg-emerald-50", border: "border-emerald-200" },
+            { year: "117", pillar: "效率", title: "汰換高耗能飲水機與冰箱", desc: "逐年汰換老舊飲水機、冰箱等高耗能設備及低效率燈具。", icon: "🚰", bg: "bg-cyan-50", border: "border-cyan-200" },
+            { year: "117", pillar: "資源", title: "惜食教育與午餐履約規範", desc: "實施惜食教育、推廣廚餘減量再利用；訂定午餐契約評估剩食原因。", icon: "🍎", bg: "bg-amber-50", border: "border-amber-200" },
+            { year: "117", pillar: "生態", title: "香草植物栽種與特色課程", desc: "融入校本特色課程，栽種香草植物並融入實作教學。", icon: "🌿", bg: "bg-green-50", border: "border-green-200" },
+            { year: "117", pillar: "碳匯", title: "建立樹木碳吸存資料庫", desc: "彙整樹木碳匯成果，建立完備之陽明校園樹木碳吸存量資料庫。", icon: "📊", bg: "bg-green-50", border: "border-green-200" },
+            { year: "117", pillar: "課程", title: "循環經濟融入領域課程", desc: "發展循環經濟教案模組並融入各領域學科教學中。", icon: "🎓", bg: "bg-blue-50", border: "border-blue-200" },
+            { year: "117", pillar: "活動", title: "辦理校園 SDGs 實踐活動", desc: "辦理豐富多元之校園 SDGs 永續發展目標實踐活動。", icon: "🎯", bg: "bg-purple-50", border: "border-purple-200" },
+            { year: "117", pillar: "創新", title: "EMS數據融入教學應用", desc: "運用 EMS 能源管理系統即時數據融入課程與教學。", icon: "📈", bg: "bg-rose-50", border: "border-rose-200" },
+
+            // 118年
+            { year: "118", pillar: "綠電", title: "深化再生能源應用教案", desc: "持續應用綠能實踐教案，深植學生永續能源觀念。", icon: "☀️", bg: "bg-yellow-50", border: "border-yellow-200" },
+            { year: "118", pillar: "節能", title: "老舊校舍修繕與能耗提升", desc: "配合建校已逾50年老舊校舍修繕，同步提升建築物能耗效率。", icon: "🏫", bg: "bg-emerald-50", border: "border-emerald-200" },
+            { year: "118", pillar: "資源", title: "廚餘減量競賽與惜食", desc: "持續辦理廚餘減量競賽，落實惜食教育與零廢棄生活。", icon: "🍲", bg: "bg-amber-50", border: "border-amber-200" },
+            { year: "118", pillar: "生態", title: "發展校園生態體驗教案", desc: "結合校園豐富生態，發展多元生態體驗教案。", icon: "🦋", bg: "bg-green-50", border: "border-green-200" },
+            { year: "118", pillar: "碳匯", title: "修剪樹木枝條循環利用", desc: "提高校園修剪樹木枝條循環使用率，促進校園樹木健康生長。", icon: "✂️", bg: "bg-green-50", border: "border-green-200" },
+            { year: "118", pillar: "課程", title: "滾動修正校本永續課程", desc: "滾動修正相關淨零與碳中和課程並持續在校內推動。", icon: "🔄", bg: "bg-blue-50", border: "border-blue-200" },
+            { year: "118", pillar: "活動", title: "鼓勵低碳旅遊與親山近水", desc: "鼓勵學生參與低碳旅遊或親山近水計畫，實踐低碳生活。", icon: "🚴", bg: "bg-purple-50", border: "border-purple-200" },
+            { year: "118", pillar: "創新", title: "教師行動研究聚焦淨零", desc: "鼓勵教師參與教育專業創新與行動研究，聚焦淨零主題。", icon: "🔬", bg: "bg-rose-50", border: "border-rose-200" }
+        ];
+
+        let currentYear = "all";
+        let currentPillar = "all";
+        let chartInstance = null;
+
+        // Switch Navigation Tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            if (tabId === 'baseline' && !chartInstance) {
+                initBaselineChart();
+            }
+        }
+
+        // Filter Year
+        function setYearFilter(year) {
+            currentYear = year;
+            document.querySelectorAll('.year-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            const activeBtn = document.getElementById('yf-' + year);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-gray-100', 'text-gray-600');
+                activeBtn.classList.add('bg-emerald-600', 'text-white');
+            }
+            filterRoadmap();
+        }
+
+        // Filter Pillar
+        function setPillarFilter(pillar) {
+            currentPillar = pillar;
+            document.querySelectorAll('.pillar-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-100', 'text-emerald-800', 'border-emerald-300', 'active');
+                btn.classList.add('bg-white', 'text-gray-600');
+            });
+            event.target.classList.remove('bg-white', 'text-gray-600');
+            event.target.classList.add('bg-emerald-100', 'text-emerald-800', 'border-emerald-300', 'active');
+            filterRoadmap();
+        }
+
+        // Render Cards in Grid
+        function filterRoadmap() {
+            const searchKeyword = document.getElementById('roadmapSearch').value.toLowerCase().trim();
+            const grid = document.getElementById('roadmapGrid');
+            grid.innerHTML = '';
+
+            const filtered = roadmapData.filter(item => {
+                const matchYear = (currentYear === 'all' || item.year === currentYear);
+                const matchPillar = (currentPillar === 'all' || item.pillar.includes(currentPillar));
+                const matchSearch = item.title.toLowerCase().includes(searchKeyword) || item.desc.toLowerCase().includes(searchKeyword);
+                return matchYear && matchPillar && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                        <div class="text-4xl mb-2">🔍</div>
+                        <p class="font-bold text-gray-500 text-sm">沒有找到符合條件的推動項目</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `${item.bg} rounded-2xl p-4 border-2 ${item.border} hover:shadow-md transition-all duration-200 flex flex-col justify-between`;
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-black bg-white px-2.5 py-1 rounded-full border border-gray-200 text-gray-700 shadow-2xs">
+                                🗓️ ${item.year}學年度
+                            </span>
+                            <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                                ${item.pillar}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-base mb-1.5 flex items-center gap-2">
+                            <span>${item.icon}</span> ${item.title}
+                        </h4>
+                        <p class="text-xs text-gray-600 leading-relaxed">${item.desc}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Chart.js initialization for Baseline Tab
+        function initBaselineChart() {
+            const ctx = document.getElementById('carbonChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['外購電力 (556.14t)', '外購水力 (5.35t)', '液化石油氣 (0.11t)', '員工通勤 (0.13t)', '樹木碳匯 (-1.71t)'],
+                    datasets: [{
+                        data: [556.1353, 5.3537, 0.1053, 0.1334, 1.7065],
+                        backgroundColor: [
+                            '#FFB74D', // Electricity (Amber)
+                            '#4FC3F7', // Water (Blue)
+                            '#E57373', // Gas (Red)
+                            '#BA68C8', // Commute (Purple)
+                            '#81C784'  // Tree Sink (Green)
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: "'Zen Maru Gothic', sans-serif",
+                                    size: 10
+                                },
+                                boxWidth: 12
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // Admin Carbon Savings Calculator
+        function calculateCarbonSavings() {
+            const checkboxes = document.querySelectorAll('.calc-check:checked');
+            let totalSaved = 0;
+            checkboxes.forEach(cb => {
+                totalSaved += parseInt(cb.getAttribute('data-save'));
+            });
+
+            document.getElementById('savedCarbonVal').innerText = totalSaved;
+            // Rough conversion: ~12kg CO2 saved per year equals 1 tree sapling absorb capacity
+            const trees = (totalSaved / 12).toFixed(1);
+            document.getElementById('treesEquivalentVal').innerText = trees;
+        }
+
+        // Quiz Challenge Interactive State
+        const quizList = [
+            {
+                q: "1. 陽明高中游泳池加熱系統已於114年8月改用何種設備以大幅降低燃料碳排放？",
+                options: ["A. 瓦斯燃油鍋爐", "B. 高效熱泵系統 (Heat Pump)", "C. 柴油發電機加熱"],
+                ans: 1,
+                explain: "答對了！陽明高中游泳池已全面改用高效熱泵系統取代傳統柴油加熱，大大降低直接碳排放量！"
+            },
+            {
+                q: "2. 陽明高中114年碳盤查結果中，佔據校園碳排放比例最高（超過550公噸）的是哪一項？",
+                options: ["A. 外購電力", "B. 學校公務車油料", "C. 水力消耗"],
+                ans: 0,
+                explain: "沒錯！外購電力高達 556.14 公噸CO₂e/年，是陽明高中最主要的節能減碳精進重點。"
+            },
+            {
+                q: "3. 行政同仁在推動116年節能減碳計畫中，可以透過何種方式落實「減少用紙」？",
+                options: ["A. 盡量將每份公文列印出來存檔", "B. 善用數位科技(電子公文與線上會議)", "C. 多使用拋棄式紙杯"],
+                ans: 1,
+                explain: "太棒了！善用數位科技進行電子公文傳遞與線上會議，正是無紙化行政的核心行動！"
+            }
+        ];
+
+        let currentQuizIdx = 0;
+
+        function renderQuiz() {
+            const q = quizList[currentQuizIdx];
+            document.getElementById('quizQuestion').innerText = q.q;
+            const optionsBox = document.getElementById('quizOptions');
+            optionsBox.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-xl border border-gray-200 hover:bg-amber-50 text-xs font-medium text-gray-700 transition-colors";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx);
+                optionsBox.appendChild(btn);
+            });
+
+            document.getElementById('quizFeedback').classList.add('hidden');
+        }
+
+        function checkAnswer(selectedIdx) {
+            const q = quizList[currentQuizIdx];
+            const fb = document.getElementById('quizFeedback');
+            fb.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+
+            if (selectedIdx === q.ans) {
+                fb.classList.add('bg-green-100', 'text-green-800');
+                fb.innerHTML = `🎉 恭喜答對！ ${q.explain} <button onclick="nextQuiz()" class="mt-2 block bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold">下一題 ➔</button>`;
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-800');
+                fb.innerText = "❌ 差一點點，再試試看喔！";
+            }
+        }
+
+        function nextQuiz() {
+            currentQuizIdx = (currentQuizIdx + 1) % quizList.length;
+            renderQuiz();
+        }
+
+        // Initialize Page Load
+        window.onload = function() {
+            filterRoadmap();
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
