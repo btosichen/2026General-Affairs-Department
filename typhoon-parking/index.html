@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="臺北市校園颱風期間開放停車時點、離場期限、校方作業流程及車主注意事項。">
+  <title>颱風期間校園開放停車 SOP</title>
+  <style>
+    :root{--ink:#26334b;--muted:#647083;--line:#dce9ef;--paper:#fffaf3;--card:#fff;--sky:#28b8d1;--mint:#55c790;--coral:#ff826b;--sun:#ffc95b;--violet:#9b82e8}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:14px}
+    .site-head{background:linear-gradient(115deg,#c8f3ff,#eadcff 45%,#ffd9e3 72%,#ffe7a8);padding:18px max(20px,calc((100vw - 1420px)/2));display:flex;justify-content:space-between;gap:16px;align-items:center}
+    .site-head h1{font-size:20px;margin:0 0 4px}.site-head p{margin:0;color:#52647c}.back{display:inline-flex;align-items:center;padding:9px 13px;border:1px solid #ffffffcc;background:#ffffffb8;border-radius:9px;color:#3e4964;text-decoration:none;font-weight:700;white-space:nowrap}.back:hover{background:#fff}
+    main{max-width:1420px;margin:auto;padding:22px 24px 42px}
+    .typhoon-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#dff8ff,#e8fff1 48%,#fff2c7);color:#29405d;border:1px solid #bfe7ee;border-radius:22px;padding:26px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:20px;box-shadow:0 12px 28px #43a9bd1f}
+    .typhoon-hero:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-60px;top:-95px;background:#ffb4c66b}.typhoon-hero h2{font-size:28px;margin:7px 0;color:#24506c}.typhoon-hero p{line-height:1.75;margin:0;color:#4e6475}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;color:#16889c}
+    .deadline-box{position:relative;z-index:1;background:#fff;border:2px solid #fff;outline:1px solid #f6d276;border-radius:17px;padding:17px;box-shadow:0 8px 20px #e6a44024}.deadline-label{display:inline-block;background:#fff0b8;color:#9a6500;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800}.deadline-box strong{display:block;font-size:24px;margin:8px 0;color:#e75f4d}.deadline-box small{display:block;line-height:1.6;color:#657083}
+    .time-grid,.resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:14px}.time,.resource{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 6px 16px #72839b14}.time.open{background:linear-gradient(145deg,#e7faff,#f8feff);border-top:6px solid var(--sky)}.time.urgent{background:linear-gradient(145deg,#fff2ed,#fffaf2);border-top:6px solid var(--coral)}.time h3,.resource h3{margin:0 0 7px;font-size:16px}.time p,.resource p{margin:0;color:#637083;line-height:1.68}.time.open b{color:#087f97}.time.urgent b{color:#cb503e}
+    .sop-card{margin-top:14px;background:linear-gradient(180deg,#fff,#fcfbff);border:1px solid #d7e8ee;border-radius:14px;padding:17px;box-shadow:0 4px 12px #7458d812}.sop-card h3{margin:0 0 10px;font-size:16px}.muted{color:var(--muted)}.sop-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.step{border:1px solid #e1e8ed;border-radius:15px;padding:14px;min-height:192px;box-shadow:0 4px 12px #71879b0e}.step:nth-child(1){background:#e9faff}.step:nth-child(2){background:#eafff1}.step:nth-child(3){background:#fff8d9}.step:nth-child(4){background:#fff0f3}.step:nth-child(5){background:#f2eeff}.step-no{display:inline-grid;place-items:center;width:31px;height:31px;border-radius:10px;color:#fff;font-weight:800;margin-bottom:9px}.step:nth-child(1) .step-no{background:var(--sky)}.step:nth-child(2) .step-no{background:var(--mint)}.step:nth-child(3) .step-no{background:#e4a62d}.step:nth-child(4) .step-no{background:var(--coral)}.step:nth-child(5) .step-no{background:var(--violet)}.step b{display:block;margin-bottom:6px;color:#34435b}.step p{font-size:12px;line-height:1.65;color:#687487;margin:0}
+    .risk{background:linear-gradient(100deg,#fff7cc,#fff0dc);border:1px solid #efd491;border-left:6px solid var(--sun);border-radius:14px;padding:15px 17px;line-height:1.7;margin-top:14px;color:#5d4e2e}.resource{display:flex;gap:13px;align-items:flex-start}.resource:first-child{background:#eefaff;border-color:#c9e9f1}.resource:last-child{background:#effcf4;border-color:#ccebd8}.resource-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:#fff;font-size:23px;flex:none;box-shadow:0 3px 10px #6c87941a}.resource a{display:inline-block;margin-top:10px;color:#167e8c;font-weight:800;text-decoration:none}.resource:last-child a{color:#258153}.resource a:hover{text-decoration:underline}
+    footer{max-width:1420px;margin:0 auto;padding:0 24px 28px;color:#7a8492;text-align:center;font-size:12px}
+    @media(max-width:1100px){.sop-grid{grid-template-columns:repeat(3,1fr)}.typhoon-hero{grid-template-columns:1fr}}
+    @media(max-width:760px){.sop-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:580px){.site-head{align-items:flex-start;flex-direction:column}.time-grid,.resource-grid,.sop-grid{grid-template-columns:1fr}.typhoon-hero{padding:18px}.typhoon-hero h2{font-size:23px}.deadline-box strong{font-size:21px}.step{min-height:0}main{padding:14px 12px 30px}}
+  </style>
+</head>
+<body>
+  <header class="site-head">
+    <div><h1>陽明高中總務處</h1><p>防颱停車專頁</p></div>
+    <a class="back" href="../">← 返回總務工作管理網頁</a>
+  </header>
+  <main>
+    <section aria-labelledby="page-title">
+      <div class="typhoon-hero"><div><span class="eyebrow">☀️ 臺北市校園防颱作業</span><h2 id="page-title">🌪️ 颱風期間校園開放停車 SOP</h2><p>依「臺北市各級學校颱風來襲期間校園開放停車注意事項」整理，供校內事前準備、車輛登記、巡查、離場查核與逾時處理使用。</p></div><div class="deadline-box"><span class="deadline-label">車主最重要提醒</span><strong>平日 07:00／假日 08:00 前取車</strong><small>應於恢復上班上課日上午 7 時前駛離；如逢假日延至上午 8 時。逾時未駛離者，學校得依規定通報強制拖吊。</small></div></div>
+      <div class="time-grid"><article class="time open"><h3>🟢 校園開放時點</h3><p>自臺北市發布<b>停止上班上課</b>起；或學校停止上課期間，自本市疏散（水）門開始關閉<b>一小時前</b>起開放。實際時間、地點及動線依學校現場公告。</p></article><article class="time urgent"><h3>🔴 停放截止與逾時</h3><p>開放至<b>恢復上班上課日上午 7 時</b>止（如逢假日延至上午 8 時）。車主應在期限前駛離；逾時未履行者，通報臺北市政府警察局交通警察大隊強制拖吊。</p></article></div>
+      <article class="sop-card"><h3>🧭 校方五階段作業流程</h3><p class="muted">開放前完成分工與場地準備，開放期間依登記表管理，結束時完成離場查核。</p><div class="sop-grid">
+        <div class="step"><span class="step-no">1</span><b>📋 開放前準備</b><p>確認開放時間、停放區域與車位；規劃進出動線、指引及校門標示。預防停電，電動門預先開放，並安排警衛或保全巡邏。</p></div>
+        <div class="step"><span class="step-no">2</span><b>🚗 進場引導與登記</b><p>引導車輛依動線進入指定位置。登記車主姓名、電話、緊急聯絡人、車牌、車種與顏色、進場時間，確認電話可即時接聽。</p></div>
+        <div class="step"><span class="step-no">3</span><b>🛡️ 開放期間管理</b><p>警衛或保全依分工巡邏，維持校門、消防與緊急通道暢通。遇緊急情況，依登記資料聯絡車主或可代為移車者。</p></div>
+        <div class="step"><span class="step-no">4</span><b>🕑 取車與離場查核</b><p>再次提醒車主於平日 7 時、假日 8 時前離場。車輛駛離時，登記實際離場時間，並由校方人員於查核欄註記時間及姓名。</p></div>
+        <div class="step"><span class="step-no">5</span><b>🚛 結束與逾時處理</b><p>清點未離場車輛，先依登記資料聯絡；逾時未駛離者，依規定通報交通警察大隊強制拖吊。完成場地復原、門禁恢復與記錄彙整。</p></div>
+      </div></article>
+      <div class="risk"><b>⚠️ 停車人請注意：</b>學校僅提供停車場地，車主應自行評估颱風、停電、掉落物及低漥淹水等風險。如有車輛損毀或因低漥淹水受損，學校不負車輛保管或毀損責任；請留下可即時聯絡的電話並保持暢通。</div>
+      <div class="resource-grid"><article class="resource"><span class="resource-icon">📄</span><div><h3>法源及作業依據</h3><p>臺北市各級學校颱風來襲期間校園開放停車注意事項（PDF）</p><a href="https://www-ws.gov.taipei/Download.ashx?u=LzAwMS9VcGxvYWQvMzQyL3JlbGZpbGUvMzY5NjcvNzA3ODQxNi9kZTU0NzI4My0zNjA1LTQ5ZWEtODQ0NC0wM2IyNzU0OWJkYTUucGRm&amp;n=6Ie65YyX5biC5ZCE57Sa5a245qCh6aKx6aKo5L6G6KWy5pyf6ZaT5qCh5ZyS6ZaL5pS%2B5YGc6LuK5rOo5oSP5LqL6aCFLnBkZg%3D%3D&amp;icon=.pdf" target="_blank" rel="noopener noreferrer">開啟臺北市原始文件 ↗</a></div></article><article class="resource"><span class="resource-icon">📝</span><div><h3>車主聯絡登記表</h3><p>颱風期間校園開放停車－車主聯絡登記表（DOCX／Google 文件）</p><a href="https://docs.google.com/document/d/1WFEv5zVfjurTNfjn9K_CIIuCpkndWvmD/edit?usp=sharing&amp;ouid=104546515696060670125&amp;rtpof=true&amp;sd=true" target="_blank" rel="noopener noreferrer">開啟、列印或下載登記表 ↗</a></div></article></div>
+    </section>
+  </main>
+  <footer>臺北市立陽明高級中學總務處</footer>
+</body>
+</html>
