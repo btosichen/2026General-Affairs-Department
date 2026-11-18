@@ -122,6 +122,9 @@ body { background: var(--paper); color: var(--ink); }
 }
 
   </style>
+<style>
+.contact-routing{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:2.2rem 0 0}.contact-card{display:flex;gap:1rem;align-items:flex-start;padding:1.35rem;border-radius:22px;border:2px solid var(--ink);background:#fff;box-shadow:7px 7px 0 var(--ink)}.contact-card .contact-icon{flex:0 0 54px;width:54px;height:54px;display:grid;place-items:center;border-radius:16px;font-size:1.7rem}.contact-card h3{margin:0 0 .35rem;font-size:1.25rem}.contact-card p{margin:.25rem 0;color:var(--muted)}.contact-card a{display:inline-block;margin-top:.65rem;padding:.65rem 1rem;border-radius:99px;text-decoration:none;font-weight:900}.contact-card.capture{border-color:#6f55c8}.contact-card.capture .contact-icon{background:#eee9ff}.contact-card.capture a{background:#6f55c8;color:#fff}.contact-card.injury{border-color:#d83e5d}.contact-card.injury .contact-icon{background:#ffe7ed}.contact-card.injury a{background:#d83e5d;color:#fff}.contact-address{font-size:.84rem}.routing-note{margin-top:1rem;padding:1rem 1.2rem;border-radius:14px;background:#fff5c8;border-left:6px solid #e7a31a;font-weight:800}@media(max-width:760px){.contact-routing{grid-template-columns:1fr}.contact-card{box-shadow:5px 5px 0 var(--ink)}}
+</style>
 </head>
 <body>
   <a class="skip" href="#main">跳至主要內容</a>
@@ -185,13 +188,18 @@ body { background: var(--paper); color: var(--ink); }
         <div class="panel danger" id="panel-attack" role="tabpanel" aria-labelledby="tab-attack" hidden><div class="step">03</div><h3>護頭、低身、快速離開</h3><p>用衣物保護頭頸，壓低身體快速離開蜂巢區域；不要停留反擊。進入室內或有遮蔽處後，立即評估傷勢與求救。</p></div>
       </div>
       <div class="report-banner" id="report"><div class="report-mascot" aria-hidden="true">📣</div><div><span>最重要的一步</span><h3>看到虎頭蜂或疑似蜂巢，立即通報總務處</h3><p>不必靠近辨認、不必拍清楚照片。請提供「時間、遠距位置／地標、單隻／多隻／疑似蜂巢」，並提醒附近師生繞道。</p></div><button id="copyReportBtn" type="button">複製通報格式</button></div>
+      <div class="contact-routing" aria-label="虎頭蜂通報聯絡資訊">
+        <article class="contact-card capture"><span class="contact-icon" aria-hidden="true">🐝</span><div><h3>發現蜂群或蜂巢，需要捕蜂處理</h3><p><b>聯絡臺北市動物保護處</b></p><p>電話：(02) 8789-7158</p><p class="contact-address">地址：110022 臺北市信義區吳興街600巷109號</p><a href="tel:0287897158">撥打動保處 (02) 8789-7158</a></div></article>
+        <article class="contact-card injury"><span class="contact-icon" aria-hidden="true">🚑</span><div><h3>有人遭蜂螫傷或出現緊急症狀</h3><p><b>立即撥打 119 求助</b></p><p>如有呼吸困難、暈眩、意識改變、全身過敏反應或多處螫傷，請立即送醫。</p><a href="tel:119">人員受傷，撥打 119</a></div></article>
+      </div>
+      <p class="routing-note">請勿因單純看見虎頭蜂或蜂巢就撥打 119；捕蜂與蜂巢處理由臺北市動物保護處協助，119 用於人員受傷等緊急救護。</p>
       <div class="campus-flow"><b>校園通報流程</b><span>保持距離</span><i>→</i><span>告知師長／總務處</span><i>→</i><span>封鎖動線</span><i>→</i><span>專業人員處理</span></div>
     </section>
 
     <section class="first-aid" id="first-aid" aria-labelledby="aid-title">
       <div><p class="section-no light">04 / 蜂螫處置</p><h2 id="aid-title">先離開現場，<br>再處理傷口。</h2><p class="aid-lead">虎頭蜂可重複螫刺，通常不會像蜜蜂一樣留下蜂針。不要為找蜂針而延誤撤離。</p></div>
       <ol><li><span>1</span><div><b>撤離蜂群範圍</b><p>移至室內或安全遮蔽處，避免再次被螫。</p></div></li><li><span>2</span><div><b>清潔、冰敷並觀察</b><p>以清水清潔；隔布冰敷減輕疼痛腫脹。不要塗尿液、醋、氨水或不明草藥。</p></div></li><li><span>3</span><div><b>出現警訊立刻打 119</b><p>呼吸困難、胸悶、喉頭緊、暈眩、意識改變、全身蕁麻疹、臉唇舌腫，或遭多處螫傷，立即求救送醫。</p></div></li></ol>
-      <a class="emergency" href="tel:119"><span>緊急狀況</span><b>撥打 119</b></a>
+      <a class="emergency" href="tel:119"><span>有人員受傷或緊急症狀</span><b>撥打 119</b></a>
     </section>
 
     <section class="patrol" aria-labelledby="patrol-title"><div><p class="section-no">05 / 校園巡查</p><h2 id="patrol-title">高風險位置清單</h2></div><div class="check-grid"><label><input type="checkbox">樹冠、樹洞與校園邊坡</label><label><input type="checkbox">灌木叢、草地與落葉堆</label><label><input type="checkbox">屋簷、雨遮與少用倉庫</label><label><input type="checkbox">排水溝、孔洞與地下設施</label><label><input type="checkbox">垃圾區、飲料與甜食周邊</label><label><input type="checkbox">除草、修枝或工程作業區</label></div><p class="note">巡查以遠距觀察蜂的固定飛行路線為主；勿撥草、敲樹、震動或自行翻找。</p></section>
@@ -208,7 +216,7 @@ body { background: var(--paper); color: var(--ink); }
     </div></details></section>
   </main>
   <footer><div><span class="mascot-logo small" aria-hidden="true">🐝</span><b>總務處 關心您的校園安全</b></div><p>發現疑似虎頭蜂或蜂巢：保持距離、標記位置、立即通報。</p><small>內容更新：2026 年 11 月｜教育插圖由 AI 生成，僅供辨識情境說明</small></footer>
-  <div class="mobile-bar"><a href="#report">📣 通報總務處</a><a href="tel:119">緊急撥打 119</a></div>
+  <div class="mobile-bar"><a href="#report">🐝 捕蜂／蜂巢處理</a><a href="tel:119">🚑 人員受傷撥 119</a></div>
   <script>
 const reportText = '校園虎頭蜂通報：發現時間＿＿；位置／地標＿＿；觀察到（單隻／多隻／疑似蜂巢）＿＿。已保持距離，未揮打、未靠近、未自行處理。請總務處協助評估並封鎖動線。';
 const copyBtn = document.querySelector('#copyBtn');
